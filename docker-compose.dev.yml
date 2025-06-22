@@ -1,0 +1,190 @@
+# version: '3.8' # Obsoleto en Docker Compose v2
+
+# BlueSystem.io Development Environment
+# Docker Compose override for local development with hot reload
+
+services:
+  # Backend Node.js Development
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      target: development  # Use development stage
+    container_name: bluesystem_backend_dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LOG_LEVEL=debug
+    volumes:
+      # Mount source code for hot reload
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules  # Prevent overwriting node_modules
+      - app_logs:/usr/src/app/logs
+    ports:
+      - "3000:3000"  # Expose backend port for direct access
+    command: npm run dev  # Development command with nodemon
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - bluesystem_network
+
+  # Frontend React Development
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development  # Use development stage
+    container_name: bluesystem_frontend_dev
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+      - VITE_APP_NAME=BlueSystem.io
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/app
+      - /app/node_modules  # Prevent overwriting node_modules
+    ports:
+      - "5173:5173"  # Vite dev server port
+    command: npm run dev -- --host 0.0.0.0  # Allow external connections
+    depends_on:
+      - app
+    networks:
+      - bluesystem_network
+
+  # MySQL Database (same as production)
+  db:
+    ports:
+      - "3306:3306"  # Expose MySQL port for external tools
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    volumes:
+      - db_data_dev:/var/lib/mysql
+      - db_logs_dev:/var/log/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./database/backup:/backup
+
+  # Redis Cache (same as production)
+  cache:
+    ports:
+      - "6379:6379"  # Expose Redis port for external tools
+    volumes:
+      - redis_data_dev:/data
+      - redis_logs_dev:/var/log/redis
+
+  # Nginx Web Server (optional for development)
+  web:
+    image: nginx:alpine
+    container_name: bluesystem_nginx_dev
+    ports:
+      - "8080:80"  # Use different port to avoid conflicts
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_logs_dev:/var/log/nginx
+    depends_on:
+      - app
+      - frontend
+    networks:
+      - bluesystem_network
+
+  # Adminer for Database Management (Development only)
+  adminer:
+    image: adminer:latest
+    container_name: bluesystem_adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+      - ADMINER_DESIGN=pepa-linha
+    depends_on:
+      - db
+    networks:
+      - bluesystem_network
+
+  # Redis Commander for Cache Management (Development only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: bluesystem_redis_commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:cache:6379:0:${REDIS_PASSWORD}
+      - HTTP_USER=admin
+      - HTTP_PASSWORD=admin123
+    depends_on:
+      - cache
+    networks:
+      - bluesystem_network
+
+  # cAdvisor - Container Monitoring (Development only)
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: bluesystem_cadvisor
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    networks:
+      - bluesystem_network
+
+  # Uptime Kuma - Service Monitoring (Development only)
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: bluesystem_uptime_kuma
+    restart: unless-stopped
+    ports:
+      - "8084:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+    networks:
+      - bluesystem_network
+
+# Development-specific volumes
+volumes:
+  db_data_dev:
+    driver: local
+    name: bluesystem_db_data_dev
+  db_logs_dev:
+    driver: local
+    name: bluesystem_db_logs_dev
+  redis_data_dev:
+    driver: local
+    name: bluesystem_redis_data_dev
+  redis_logs_dev:
+    driver: local
+    name: bluesystem_redis_logs_dev
+  nginx_logs_dev:
+    driver: local
+    name: bluesystem_nginx_logs_dev
+  uptime_kuma_data:
+    driver: local
+    name: bluesystem_uptime_kuma_data 

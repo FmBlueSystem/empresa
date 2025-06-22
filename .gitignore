@@ -1,0 +1,65 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+app/logs/
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+build/
+frontend/dist/
+
+# Database files
+*.sql
+*.db
+*.sqlite
+
+# Docker
+.docker/
+
+# SSL Certificates
+ssl/
+*.pem
+*.crt
+*.key
+
+# Backup files
+backups/
+*.backup
+*.dump
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Docker volumes (if mapped locally)
+mysql_data/
+redis_data/
+nginx_logs/ 

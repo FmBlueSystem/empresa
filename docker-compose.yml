@@ -1,0 +1,231 @@
+# version: '3.8' # Obsoleto en Docker Compose v2
+
+# BlueSystem.io Docker Compose Configuration
+# Complete stack with all services for production deployment
+
+services:
+  # Backend Node.js Application
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    container_name: bluesystem_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${APP_PORT:-3000}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - bluesystem_network
+    volumes:
+      - app_logs:/app/logs
+      - app_uploads:/app/uploads
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    container_name: bluesystem_frontend
+    restart: unless-stopped
+    volumes:
+      - frontend_dist:/app/dist
+    networks:
+      - bluesystem_network
+    depends_on:
+      - app
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: bluesystem_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - frontend_dist:/usr/share/nginx/html:ro
+      - nginx_logs:/var/log/nginx
+      - ssl_certs:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+      - frontend
+    networks:
+      - bluesystem_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: bluesystem_mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+      --innodb-log-file-size=64M
+      --max-connections=200
+      --max-allowed-packet=64M
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/mysql-slow.log
+      --long_query_time=2
+    volumes:
+      - db_data:/var/lib/mysql
+      - db_logs:/var/log/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./database/backup:/backup
+    networks:
+      - bluesystem_network
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Redis Cache
+  cache:
+    image: redis:7-alpine
+    container_name: bluesystem_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+      - redis_logs:/var/log/redis
+    networks:
+      - bluesystem_network
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Portainer for Docker Management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: bluesystem_portainer
+    restart: unless-stopped
+    command: >
+      --admin-password-file /tmp/portainer_password
+      --host unix:///var/run/docker.sock
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+      - ./scripts/portainer_password:/tmp/portainer_password:ro
+    networks:
+      - bluesystem_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/api/status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+# Named Volumes for Data Persistence
+volumes:
+  # Database volumes
+  db_data:
+    driver: local
+    name: bluesystem_db_data
+  db_logs:
+    driver: local
+    name: bluesystem_db_logs
+
+  # Redis volumes
+  redis_data:
+    driver: local
+    name: bluesystem_redis_data
+  redis_logs:
+    driver: local
+    name: bluesystem_redis_logs
+
+  # Application volumes
+  app_logs:
+    driver: local
+    name: bluesystem_app_logs
+  app_uploads:
+    driver: local
+    name: bluesystem_app_uploads
+
+  # Frontend volumes
+  frontend_dist:
+    driver: local
+    name: bluesystem_frontend_dist
+
+  # Nginx volumes
+  nginx_logs:
+    driver: local
+    name: bluesystem_nginx_logs
+  ssl_certs:
+    driver: local
+    name: bluesystem_ssl_certs
+
+  # Portainer volume
+  portainer_data:
+    driver: local
+    name: bluesystem_portainer_data
+
+# Networks
+networks:
+  bluesystem_network:
+    driver: bridge
+    name: bluesystem_network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 
