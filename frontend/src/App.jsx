@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import axios from 'axios'
 import './App.css'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 // Components
+import Home from './pages/Home'
+import ServicesPage from './pages/ServicesPage'
+import SuccessStories from './pages/SuccessStories'
+import ContactPage from './pages/ContactPage'
 import Dashboard from './components/Dashboard'
 import Login from './components/Login'
 
@@ -22,12 +28,15 @@ function App() {
 
   const checkApiHealth = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/test`)
+      const response = await axios.get(`${API_BASE_URL}/test`, { timeout: 2000 })
       setApiHealth('healthy')
       console.log('✅ API conectada:', response.data)
     } catch (error) {
       setApiHealth('unhealthy')
-      console.error('❌ Error connecting to API:', error)
+      // Solo mostrar error en desarrollo, no en producción
+      if (import.meta.env.DEV) {
+        console.warn('⚠️ API backend no disponible - funcionando en modo frontend-only')
+      }
     } finally {
       setLoading(false)
     }
@@ -66,74 +75,53 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
-        <header className="app-header">
-          <div className="header-content">
-            <div className="logo-section">
-              <h1 className="logo">
-                <span className="logo-icon">🔵</span>
-                BlueSystem.io
-              </h1>
-              <div className="status-indicators">
-                <span className={`status-indicator ${apiHealth}`}>
-                  API: {apiHealth === 'healthy' ? '✅' : '❌'}
-                </span>
-              </div>
-            </div>
-            
-            <nav className="main-nav">
-              <Link to="/" className="nav-link">Dashboard</Link>
-              {user && (
-                <div className="user-section">
-                  <span className="user-info">
-                    👋 Hola, {user.email}
-                  </span>
-                  <button onClick={handleLogout} className="logout-btn">
-                    Cerrar Sesión
-                  </button>
-                </div>
-              )}
-            </nav>
-          </div>
-        </header>
-
-        <main className="app-main">
+      <div className="App min-h-screen flex flex-col">
+        {/* Barra de navegación */}
+        <Navbar />
+        
+        {/* Contenido principal */}
+        <div className="flex-grow">
           <Routes>
-            <Route 
-              path="/" 
-              element={
-                user ? (
-                  <Dashboard user={user} apiBaseUrl={API_BASE_URL} />
-                ) : (
-                  <Login onLogin={handleLogin} />
-                )
-              } 
-            />
-            <Route 
-              path="/login" 
-              element={<Login onLogin={handleLogin} />} 
-            />
+            {/* Página principal */}
+            <Route path="/" element={<Home />} />
+            
+            {/* Páginas principales */}
+            <Route path="/servicios" element={<ServicesPage />} />
+            <Route path="/casos-de-exito" element={<SuccessStories />} />
+            <Route path="/contacto" element={<ContactPage />} />
+            
+            {/* Subpáginas de servicios (placeholders) */}
+            <Route path="/servicios/sap" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Consultoría SAP - Próximamente</h1></div>} />
+            <Route path="/servicios/ia" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Automatización IA - Próximamente</h1></div>} />
+            <Route path="/servicios/office365" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Office 365 - Próximamente</h1></div>} />
+            <Route path="/servicios/desarrollo-web" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Desarrollo Web - Próximamente</h1></div>} />
+            
+            {/* Otras páginas futuras */}
+            <Route path="/sobre-nosotros" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Sobre Nosotros - Próximamente</h1></div>} />
+            
+            {/* Páginas legales */}
+            <Route path="/privacidad" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Política de Privacidad - Próximamente</h1></div>} />
+            <Route path="/terminos" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Términos de Servicio - Próximamente</h1></div>} />
+            
+            {/* Rutas del sistema (legacy) */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            
+            {/* Página 404 */}
+            <Route path="*" element={
+              <div className="pt-20 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-6xl font-bold text-gray-dark mb-4">404</h1>
+                  <p className="text-xl text-gray-600 mb-8">Página no encontrada</p>
+                  <a href="/" className="btn-primary">Volver al inicio</a>
+                </div>
+              </div>
+            } />
           </Routes>
-        </main>
-
-        <footer className="app-footer">
-          <div className="footer-content">
-            <p>
-              &copy; 2025 BlueSystem.io - Desarrollado por Freddy
-            </p>
-            <div className="footer-links">
-              <span>v1.0.0</span>
-              <span>•</span>
-              <a 
-                href="https://github.com/FmBlueSystem/empresa" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-        </footer>
+        </div>
+        
+        {/* Footer */}
+        <Footer />
       </div>
     </Router>
   )
