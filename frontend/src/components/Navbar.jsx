@@ -45,8 +45,8 @@ const Navbar = () => {
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
+        isScrolled
+          ? 'bg-gray-light/90 backdrop-blur-md shadow-md border-b border-gray-200'
           : 'bg-transparent'
       }`}
     >
@@ -138,7 +138,7 @@ const Navbar = () => {
             isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="py-4 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-lg">
+          <div className="py-4 bg-gray-light/90 backdrop-blur-md rounded-lg mt-2 shadow-md border border-gray-200">
             {navLinks.map((link, index) => (
               <NavLink
                 key={link.path}
