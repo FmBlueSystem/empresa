@@ -1,0 +1,382 @@
+/**
+ * Estilos de Accesibilidad WCAG 2.1 AA
+ * Implementación Fase 2: Profesionalismo Avanzado
+ */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip links para navegación por teclado */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 4px;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Estados de foco mejorados */
+.enhanced-focus *:focus {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+.enhanced-focus button:focus,
+.enhanced-focus a:focus,
+.enhanced-focus input:focus,
+.enhanced-focus textarea:focus,
+.enhanced-focus select:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* Contraste alto */
+.high-contrast {
+  filter: contrast(1.5) brightness(1.1);
+}
+
+.high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.high-contrast .bg-white {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.high-contrast .bg-gray-50,
+.high-contrast .bg-gray-100,
+.high-contrast .bg-gray-200 {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+.high-contrast .text-gray-600,
+.high-contrast .text-gray-700,
+.high-contrast .text-gray-800,
+.high-contrast .text-gray-900 {
+  color: #fff !important;
+}
+
+.high-contrast .text-blue-600,
+.high-contrast .text-blue-700 {
+  color: #60a5fa !important;
+}
+
+.high-contrast .border-gray-200,
+.high-contrast .border-gray-300 {
+  border-color: #666 !important;
+}
+
+.high-contrast button {
+  border: 2px solid #fff !important;
+}
+
+.high-contrast .btn-primary {
+  background: #fff !important;
+  color: #000 !important;
+  border: 2px solid #fff !important;
+}
+
+.high-contrast .btn-secondary {
+  background: transparent !important;
+  color: #fff !important;
+  border: 2px solid #fff !important;
+}
+
+/* Movimiento reducido */
+.reduced-motion,
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .animate-bounce,
+.reduced-motion .animate-pulse,
+.reduced-motion .animate-spin {
+  animation: none !important;
+}
+
+/* Tamaños de fuente */
+.font-small {
+  font-size: 14px;
+}
+
+.font-small h1 { font-size: 1.8rem; }
+.font-small h2 { font-size: 1.5rem; }
+.font-small h3 { font-size: 1.3rem; }
+.font-small h4 { font-size: 1.1rem; }
+.font-small h5 { font-size: 1rem; }
+.font-small h6 { font-size: 0.9rem; }
+
+.font-normal {
+  font-size: 16px;
+}
+
+.font-normal h1 { font-size: 2.25rem; }
+.font-normal h2 { font-size: 1.875rem; }
+.font-normal h3 { font-size: 1.5rem; }
+.font-normal h4 { font-size: 1.25rem; }
+.font-normal h5 { font-size: 1.125rem; }
+.font-normal h6 { font-size: 1rem; }
+
+.font-large {
+  font-size: 18px;
+}
+
+.font-large h1 { font-size: 2.5rem; }
+.font-large h2 { font-size: 2rem; }
+.font-large h3 { font-size: 1.75rem; }
+.font-large h4 { font-size: 1.5rem; }
+.font-large h5 { font-size: 1.25rem; }
+.font-large h6 { font-size: 1.125rem; }
+
+.font-xl {
+  font-size: 20px;
+}
+
+.font-xl h1 { font-size: 3rem; }
+.font-xl h2 { font-size: 2.25rem; }
+.font-xl h3 { font-size: 2rem; }
+.font-xl h4 { font-size: 1.75rem; }
+.font-xl h5 { font-size: 1.5rem; }
+.font-xl h6 { font-size: 1.25rem; }
+
+/* Mejoras de contraste para elementos interactivos */
+button, 
+a, 
+input, 
+textarea, 
+select {
+  min-height: 44px; /* Tamaño mínimo de toque accesible */
+}
+
+/* Estados hover y focus más visibles */
+button:hover,
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* Indicadores de estado de carga accesibles */
+@keyframes accessible-loading {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading-accessible {
+  animation: accessible-loading 1.5s ease-in-out infinite;
+}
+
+/* Mejoras para formularios */
+label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+input:invalid,
+textarea:invalid {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+input:valid,
+textarea:valid {
+  border-color: #16a34a;
+}
+
+/* Mensajes de error accesibles */
+.error-message {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-message::before {
+  content: "⚠️";
+  font-size: 1rem;
+}
+
+/* Mejoras para tablas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+/* Breadcrumbs accesibles */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+  content: "/";
+  margin-left: 8px;
+  color: #6b7280;
+}
+
+/* Tooltips accesibles */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 8px;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:focus::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+/* Notificaciones accesibles */
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 4px solid;
+}
+
+.notification-success {
+  background-color: #dcfce7;
+  border-left-color: #16a34a;
+  color: #166534;
+}
+
+.notification-error {
+  background-color: #fee2e2;
+  border-left-color: #dc2626;
+  color: #991b1b;
+}
+
+.notification-warning {
+  background-color: #fef3c7;
+  border-left-color: #f59e0b;
+  color: #92400e;
+}
+
+.notification-info {
+  background-color: #dbeafe;
+  border-left-color: #2563eb;
+  color: #1e40af;
+}
+
+/* Mejoras responsive para accesibilidad */
+@media (max-width: 768px) {
+  .font-large {
+    font-size: 16px;
+  }
+  
+  .font-xl {
+    font-size: 18px;
+  }
+  
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    min-height: 48px; /* Tamaño más grande en móviles */
+  }
+}
+
+/* Modo de impresión accesible */
+@media print {
+  .high-contrast {
+    filter: none;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
+  }
+  
+  a::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Animaciones respetuosas con vestibular */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+} 

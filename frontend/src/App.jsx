@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import axios from 'axios'
 import './App.css'
 import Navbar from './components/Navbar'
@@ -10,8 +11,16 @@ import Home from './pages/Home'
 import ServicesPage from './pages/ServicesPage'
 import SuccessStories from './pages/SuccessStories'
 import ContactPage from './pages/ContactPage'
+import AboutPage from './pages/AboutPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
+import DesarrolloWebPage from './pages/DesarrolloWebPage'
 import Dashboard from './components/Dashboard'
 import Login from './components/Login'
+import SEO from './components/SEO'
+import SchemaMarkup from './components/SchemaMarkup'
+import Analytics from './components/Analytics'
+import AccessibilityProvider from './components/AccessibilityProvider'
 
 // API configuration
 const API_BASE_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api'
@@ -74,14 +83,32 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App min-h-screen flex flex-col">
-        {/* Barra de navegación */}
-        <Navbar />
-        
-        {/* Contenido principal */}
-        <div className="flex-grow">
-          <Routes>
+    <HelmetProvider>
+      <AccessibilityProvider>
+        <Router>
+          <div className="App min-h-screen flex flex-col">
+            {/* Skip links para accesibilidad */}
+            <a href="#main-content" className="skip-link">
+              Saltar al contenido principal
+            </a>
+            <a href="#navigation" className="skip-link">
+              Saltar a la navegación
+            </a>
+            
+            {/* SEO Global, Schema Markup y Analytics */}
+            <SEO />
+            <SchemaMarkup type="organization" />
+            <SchemaMarkup type="website" />
+            <Analytics />
+          
+          {/* Barra de navegación */}
+          <nav id="navigation" aria-label="Navegación principal">
+            <Navbar />
+          </nav>
+          
+          {/* Contenido principal */}
+          <main id="main-content" className="flex-grow" role="main">
+            <Routes>
             {/* Página principal */}
             <Route path="/" element={<Home />} />
             
@@ -89,19 +116,19 @@ function App() {
             <Route path="/servicios" element={<ServicesPage />} />
             <Route path="/casos-de-exito" element={<SuccessStories />} />
             <Route path="/contacto" element={<ContactPage />} />
+            <Route path="/sobre-nosotros" element={<AboutPage />} />
             
             {/* Subpáginas de servicios (placeholders) */}
             <Route path="/servicios/sap" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Consultoría SAP - Próximamente</h1></div>} />
             <Route path="/servicios/ia" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Automatización IA - Próximamente</h1></div>} />
             <Route path="/servicios/office365" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Office 365 - Próximamente</h1></div>} />
-            <Route path="/servicios/desarrollo-web" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Desarrollo Web - Próximamente</h1></div>} />
+            <Route path="/servicios/desarrollo-web" element={<DesarrolloWebPage />} />
             
             {/* Otras páginas futuras */}
-            <Route path="/sobre-nosotros" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Sobre Nosotros - Próximamente</h1></div>} />
             
             {/* Páginas legales */}
-            <Route path="/privacidad" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Política de Privacidad - Próximamente</h1></div>} />
-            <Route path="/terminos" element={<div className="pt-20 min-h-screen flex items-center justify-center"><h1 className="text-4xl font-bold text-gray-dark">Términos de Servicio - Próximamente</h1></div>} />
+            <Route path="/privacidad" element={<PrivacyPage />} />
+            <Route path="/terminos" element={<TermsPage />} />
             
             {/* Rutas del sistema (legacy) */}
             <Route path="/dashboard" element={<Dashboard />} />
@@ -117,13 +144,17 @@ function App() {
                 </div>
               </div>
             } />
-          </Routes>
-        </div>
+                      </Routes>
+          </main>
         
-        {/* Footer */}
-        <Footer />
-      </div>
-    </Router>
+          {/* Footer */}
+          <footer role="contentinfo">
+            <Footer />
+          </footer>
+        </div>
+      </Router>
+    </AccessibilityProvider>
+  </HelmetProvider>
   )
 }
 

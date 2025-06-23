@@ -168,8 +168,10 @@ const ServicesPage = () => {
                   Iniciar Dominación
                 </a>
                 <a 
-                  href="#" 
+                  href="/recursos/battle-plan-bluesystem.pdf" 
                   className="btn-secondary text-lg px-8 py-4"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Descargar Battle Plan
                 </a>

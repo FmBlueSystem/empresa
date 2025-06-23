@@ -46,8 +46,8 @@ const Navbar = () => {
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
-          : 'bg-transparent'
+          ? 'bg-white/98 backdrop-blur-md shadow-xl border-b border-gray-200' 
+          : 'bg-gradient-to-b from-black/20 to-transparent backdrop-blur-sm'
       }`}
     >
       <div className="container-custom">
@@ -64,7 +64,7 @@ const Navbar = () => {
             </div>
             <span 
               className={`text-xl font-bold transition-colors duration-300 ${
-                isScrolled ? 'text-gray-dark' : 'text-white'
+                isScrolled ? 'text-gray-800' : 'text-white drop-shadow-lg'
               } group-hover:text-blue-primary`}
             >
               BlueSystem.io
@@ -79,8 +79,8 @@ const Navbar = () => {
                 to={link.path}
                 className={({ isActive }) => `
                   font-medium transition-all duration-300 hover:text-blue-primary relative
-                  ${isScrolled ? 'text-gray-dark' : 'text-white'}
-                  ${isActive ? 'text-blue-primary' : ''}
+                  ${isScrolled ? 'text-gray-800' : 'text-white drop-shadow-lg'}
+                  ${isActive ? 'text-blue-primary font-semibold' : ''}
                 `}
               >
                 {({ isActive }) => (
@@ -110,7 +110,7 @@ const Navbar = () => {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className={`md:hidden p-2 rounded-lg transition-colors duration-300 ${
-              isScrolled ? 'text-gray-dark hover:bg-gray-100' : 'text-white hover:bg-white/10'
+              isScrolled ? 'text-gray-800 hover:bg-gray-100' : 'text-white hover:bg-white/20 drop-shadow-lg'
             }`}
             aria-label="Abrir menú de navegación"
             aria-expanded={isMenuOpen}
@@ -138,7 +138,7 @@ const Navbar = () => {
             isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="py-4 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-lg">
+          <div className="py-4 bg-white/98 backdrop-blur-md rounded-lg mt-2 shadow-2xl border border-gray-200">
             {navLinks.map((link, index) => (
               <NavLink
                 key={link.path}

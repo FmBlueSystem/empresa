@@ -1,0 +1,99 @@
+{
+  "name": "BlueSystem.io - Revolución Digital Empresarial",
+  "short_name": "BlueSystem",
+  "description": "Especialistas en SAP, IA y Automatización que catalizan revoluciones digitales",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "technology"],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/desktop.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "BlueSystem Dashboard Desktop"
+    },
+    {
+      "src": "/assets/screenshots/mobile.jpg", 
+      "sizes": "375x667",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "BlueSystem Mobile"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32", 
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Servicios",
+      "short_name": "Servicios",
+      "description": "Ver arsenal de disrupción",
+      "url": "/servicios",
+      "icons": [
+        {
+          "src": "/assets/icons/services-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Contacto",
+      "short_name": "Contacto",
+      "description": "Iniciar revolución",
+      "url": "/contacto",
+      "icons": [
+        {
+          "src": "/assets/icons/contact-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Casos de Éxito",
+      "short_name": "Casos",
+      "description": "Industrias revolucionadas",
+      "url": "/casos-de-exito",
+      "icons": [
+        {
+          "src": "/assets/icons/success-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+} 
