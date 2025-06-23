@@ -7,14 +7,7 @@ export default defineConfig({
   plugins: [
     react({
       // Enable React Fast Refresh
-      fastRefresh: true,
-      // Babel plugins for optimization
-      babel: {
-        plugins: [
-          // Remove PropTypes in production
-          process.env.NODE_ENV === 'production' && 'babel-plugin-transform-remove-prop-types'
-        ].filter(Boolean)
-      }
+      fastRefresh: true
     })
   ],
   

@@ -285,24 +285,7 @@ export const trackLoadingPerformance = (componentName, startTime) => {
  * Bundle size optimization utilities
  */
 export const optimizeImports = {
-  // Tree-shakeable lodash imports
-  debounce: () => import('lodash-es/debounce'),
-  throttle: () => import('lodash-es/throttle'),
-  
-  // Chart libraries con code splitting
-  Chart: () => import('chart.js'),
-  ReactChart: () => import('react-chartjs-2'),
-  
-  // Icon libraries
-  Icons: () => import('@heroicons/react/24/outline'),
-  
-  // Date utilities
-  DateFns: () => import('date-fns'),
-  
-  // Form validation
-  Yup: () => import('yup'),
-  
-  // Markdown rendering
+  // Only include imports that are actually available
   ReactMarkdown: () => import('react-markdown')
 };
 

@@ -6,7 +6,7 @@ import './App.css'
 
 // Performance Optimization Components
 import ResourcePreloader, { CriticalCSS, ServiceWorkerLoader, useSmartPreload } from './components/ResourcePreloader'
-import { preloadCriticalComponents, createLazyRoute, addResourceHints } from './utils/bundleOptimization'
+import { preloadCriticalComponents, createLazyRoute, addResourceHints } from './utils/bundleOptimization.jsx'
 
 // UX Enhancement Components
 import ErrorBoundary, { withErrorBoundary } from './components/ErrorBoundary'
