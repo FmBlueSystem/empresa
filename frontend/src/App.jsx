@@ -3,24 +3,37 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import axios from 'axios'
 import './App.css'
+
+// Performance Optimization Components
+import ResourcePreloader, { CriticalCSS, ServiceWorkerLoader, useSmartPreload } from './components/ResourcePreloader'
+import { preloadCriticalComponents, createLazyRoute, addResourceHints } from './utils/bundleOptimization'
+
+// UX Enhancement Components
+import ErrorBoundary, { withErrorBoundary } from './components/ErrorBoundary'
+import WebVitalsMonitor, { WebVitalsDashboard } from './components/WebVitalsMonitor'
+import { LoadingOverlay, PageTransitionLoader, Spinner } from './components/LoadingStates'
+
+// Critical Components (loaded immediately)
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-
-// Components
-import Home from './pages/Home'
-import ServicesPage from './pages/ServicesPage'
-import SuccessStories from './pages/SuccessStories'
-import ContactPage from './pages/ContactPage'
-import AboutPage from './pages/AboutPage'
-import PrivacyPage from './pages/PrivacyPage'
-import TermsPage from './pages/TermsPage'
-import DesarrolloWebPage from './pages/DesarrolloWebPage'
-import Dashboard from './components/Dashboard'
-import Login from './components/Login'
 import SEO from './components/SEO'
 import SchemaMarkup from './components/SchemaMarkup'
 import Analytics from './components/Analytics'
 import AccessibilityProvider from './components/AccessibilityProvider'
+
+// Lazy-loaded Pages (code splitting)
+const Home = createLazyRoute('/', () => import('./pages/Home'))
+const ServicesPage = createLazyRoute('/servicios', () => import('./pages/ServicesPage'))
+const SuccessStories = createLazyRoute('/casos-de-exito', () => import('./pages/SuccessStories'))
+const ContactPage = createLazyRoute('/contacto', () => import('./pages/ContactPage'))
+const AboutPage = createLazyRoute('/sobre-nosotros', () => import('./pages/AboutPage'))
+const PrivacyPage = createLazyRoute('/privacidad', () => import('./pages/PrivacyPage'))
+const TermsPage = createLazyRoute('/terminos', () => import('./pages/TermsPage'))
+const DesarrolloWebPage = createLazyRoute('/servicios/desarrollo-web', () => import('./pages/DesarrolloWebPage'))
+
+// Legacy Components (lazy loaded)
+const Dashboard = createLazyRoute('/dashboard', () => import('./components/Dashboard'))
+const Login = createLazyRoute('/login', () => import('./components/Login'))
 
 // API configuration
 const API_BASE_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api'
@@ -29,10 +42,18 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [apiHealth, setApiHealth] = useState(null)
+  const [pageLoading, setPageLoading] = useState(false)
+
+  // Initialize performance optimizations
+  useSmartPreload()
 
   // Check API health on mount
   useEffect(() => {
     checkApiHealth()
+    
+    // Initialize performance optimizations
+    preloadCriticalComponents()
+    addResourceHints()
   }, [])
 
   const checkApiHealth = async () => {
@@ -73,10 +94,11 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Cargando BlueSystem.io...</p>
+      <div className="loading-container min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="text-center">
+          <Spinner size="large" className="mb-4" />
+          <p className="text-lg font-medium text-gray-700">Cargando BlueSystem.io...</p>
+          <p className="text-sm text-gray-500 mt-2">Preparando la revolución digital...</p>
         </div>
       </div>
     )
@@ -85,21 +107,32 @@ function App() {
   return (
     <HelmetProvider>
       <AccessibilityProvider>
-        <Router>
-          <div className="App min-h-screen flex flex-col">
-            {/* Skip links para accesibilidad */}
-            <a href="#main-content" className="skip-link">
-              Saltar al contenido principal
-            </a>
-            <a href="#navigation" className="skip-link">
-              Saltar a la navegación
-            </a>
-            
-            {/* SEO Global, Schema Markup y Analytics */}
-            <SEO />
-            <SchemaMarkup type="organization" />
-            <SchemaMarkup type="website" />
-            <Analytics />
+        <ErrorBoundary level="page" component="App">
+          <Router>
+            <div className="App min-h-screen flex flex-col">
+              {/* Performance Optimization Components */}
+              <ResourcePreloader />
+              <CriticalCSS />
+              <ServiceWorkerLoader />
+              
+              {/* UX Enhancement Components */}
+              <WebVitalsMonitor reportToAnalytics={true} />
+              <PageTransitionLoader isLoading={pageLoading} />
+              {import.meta.env.DEV && <WebVitalsDashboard />}
+              
+              {/* Skip links para accesibilidad */}
+              <a href="#main-content" className="skip-link">
+                Saltar al contenido principal
+              </a>
+              <a href="#navigation" className="skip-link">
+                Saltar a la navegación
+              </a>
+              
+              {/* SEO Global, Schema Markup y Analytics */}
+              <SEO />
+              <SchemaMarkup type="organization" />
+              <SchemaMarkup type="website" />
+              <Analytics />
           
           {/* Barra de navegación */}
           <nav id="navigation" aria-label="Navegación principal">
@@ -108,7 +141,8 @@ function App() {
           
           {/* Contenido principal */}
           <main id="main-content" className="flex-grow" role="main">
-            <Routes>
+            <ErrorBoundary level="component" component="MainContent">
+              <Routes>
             {/* Página principal */}
             <Route path="/" element={<Home />} />
             
@@ -145,16 +179,18 @@ function App() {
               </div>
             } />
                       </Routes>
+            </ErrorBoundary>
           </main>
         
           {/* Footer */}
           <footer role="contentinfo">
             <Footer />
           </footer>
-        </div>
-      </Router>
-    </AccessibilityProvider>
-  </HelmetProvider>
+            </div>
+          </Router>
+        </ErrorBoundary>
+      </AccessibilityProvider>
+    </HelmetProvider>
   )
 }
 

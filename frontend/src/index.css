@@ -926,3 +926,182 @@ button:hover, a:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* ===============================================
+   LOADING ANIMATIONS & SKELETON SCREENS
+   =============================================== */
+
+/* Shimmer animation for skeleton screens */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+}
+
+.bg-size-200 { 
+  background-size: 200% 100%; 
+}
+
+.bg-pos-0 { 
+  background-position: -200% 0; 
+}
+
+/* Skeleton loading states */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse-custom {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse-custom {
+  animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Page transition loader */
+@keyframes progressBar {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+.page-transition-bar {
+  animation: progressBar 0.5s ease-in-out;
+  transform-origin: left;
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Spinner variations */
+.spinner-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spinner-dots > div {
+  width: 8px;
+  height: 8px;
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: spinner-dots-fade 1.4s ease-in-out infinite both;
+}
+
+.spinner-dots > div:nth-child(1) { animation-delay: -0.32s; }
+.spinner-dots > div:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes spinner-dots-fade {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Improve font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Error boundary styles */
+.error-boundary-container {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+/* Loading state improvements */
+.loading-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Skeleton card components */
+.skeleton-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.skeleton-card .skeleton-line {
+  height: 0.75rem;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-card .skeleton-line:last-child {
+  width: 60%;
+}
+
+/* Intersection observer optimizations */
+.lazy-load-trigger {
+  height: 1px;
+  visibility: hidden;
+}
+
+/* Web Vitals dashboard styles */
+.web-vitals-dashboard {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.web-vitals-dashboard .metric-good {
+  color: #059669;
+}
+
+.web-vitals-dashboard .metric-needs-improvement {
+  color: #d97706;
+}
+
+.web-vitals-dashboard .metric-poor {
+  color: #dc2626;
+}
