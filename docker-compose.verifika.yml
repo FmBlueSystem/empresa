@@ -1,0 +1,87 @@
+# Docker Compose para Verifika - Extensión del stack BlueSystem
+version: '3.8'
+
+services:
+  # API Backend de Verifika
+  verifika-api:
+    build: 
+      context: ./verifika/backend
+      dockerfile: Dockerfile
+    container_name: verifika-api
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME:-bluesystem}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./verifika/backend:/app
+      - ./verifika/backend/uploads:/app/uploads
+      - ./app/logs:/app/logs
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - bluesystem_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend de Verifika (desarrollo)
+  verifika-frontend-dev:
+    build:
+      context: ./verifika/frontend
+      dockerfile: Dockerfile.dev
+    container_name: verifika-frontend-dev
+    ports:
+      - "5174:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_APP_NAME=Verifika
+    volumes:
+      - ./verifika/frontend:/app
+      - /app/node_modules
+    networks:
+      - bluesystem_network
+    depends_on:
+      - verifika-api
+    profiles:
+      - development
+
+  # Frontend de Verifika (producción)
+  verifika-frontend-prod:
+    build:
+      context: ./verifika/frontend
+      dockerfile: Dockerfile.prod
+    container_name: verifika-frontend-prod
+    volumes:
+      - verifika_frontend_dist:/usr/share/nginx/html/verifika
+      - ./nginx/verifika.conf:/etc/nginx/conf.d/verifika.conf:ro
+    networks:
+      - bluesystem_network
+    depends_on:
+      - verifika-api
+    profiles:
+      - production
+
+volumes:
+  verifika_frontend_dist:
+    name: verifika_frontend_dist
+
+networks:
+  bluesystem_network:
+    external: true

@@ -90,6 +90,14 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link 
+                    to="/verifika" 
+                    className="text-gray-300 hover:text-blue-primary transition-colors duration-300 flex items-center gap-2"
+                  >
+                    <span>Verifika</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link 
                     to="/sobre-nosotros" 
                     className="text-gray-300 hover:text-blue-primary transition-colors duration-300 flex items-center gap-2"
                   >

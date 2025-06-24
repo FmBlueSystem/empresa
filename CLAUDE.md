@@ -163,6 +163,78 @@ Located in `scripts/` directory:
 - Hot reload enabled for all React components
 - API proxy configured for `/api` and `/health` endpoints
 
+## Proyecto Verifika
+
+**Nombre del proyecto en Dart AI:** Verifika  
+**ID del proyecto:** slF0dOywYY8R
+
+### Descripción
+Sistema de validación de actividades técnicas diarias con tres tipos de usuarios:
+- **Técnicos**: Registran actividades con horarios y archivos
+- **Clientes**: Validan o rechazan actividades con comentarios
+- **Administradores**: Gestionan usuarios, asignaciones y métricas
+
+### Estado del Proyecto
+- **Progreso Actual**: 35% completado
+- **FASE 2.1**: ✅ Autenticación JWT + Base de Datos (COMPLETADA)
+- **FASE 2.2**: ✅ Módulo de Técnicos + Competencias (COMPLETADA)
+- **FASE 2.3**: 🔄 Gestión de Clientes (SIGUIENTE)
+- **Endpoints implementados**: 29 rutas REST operativas
+- **Tests**: 45+ casos de prueba implementados
+
+### Arquitectura Verifika
+- **Frontend**: React 18 + Vite + Tailwind CSS (puerto 5174)
+- **Backend**: Node.js + Express + JWT (puerto 3001)
+- **Base de Datos**: Extensión del esquema MySQL existente
+- **Integración**: Módulo híbrido en infraestructura BlueSystem
+
+### Comandos Verifika
+```bash
+# Desarrollo Verifika
+cd verifika/frontend && npm run dev     # Frontend en localhost:5174
+cd verifika/backend && npm run dev      # Backend en localhost:3001
+
+# Testing Verifika Backend
+cd verifika/backend && npm run test:fase22      # Test completo FASE 2.2
+cd verifika/backend && npm run test:tecnicos    # Tests técnicos
+cd verifika/backend && npm run test:competencias # Tests competencias
+cd verifika/backend && npm run test:integration # Tests integración
+cd verifika/backend && npm run test:coverage    # Coverage report
+
+# Base de Datos Verifika
+cd verifika/backend && npm run db:migrate       # Crear tablas
+cd verifika/backend && npm run db:test-auth     # Test autenticación
+
+# Health Checks
+curl http://localhost:3001/health               # Estado API
+curl http://localhost:3001/health/detailed      # Health detallado
+```
+
+### URLs Verifika
+- **Desarrollo**: http://localhost:5174
+- **API**: http://localhost:3001/api
+- **Producción**: http://localhost/verifika
+
+### Estructura de Archivos
+```
+verifika/
+├── backend/
+│   ├── routes/
+│   │   ├── actividades.js
+│   │   ├── usuarios.js
+│   │   └── validaciones.js
+│   ├── models/
+│   └── middleware/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── utils/
+│   └── public/
+└── docs/
+    └── VERIFIKA_PROJECT.md
+```
+
 ## Important Notes
 
 - The project is primarily in Spanish (comments, documentation, UI)
@@ -174,3 +246,4 @@ Located in `scripts/` directory:
 - Complete home page UI is functional with modern design and animations
 - Professional services page with detailed service descriptions and interactive elements
 - Full navigation system with active state detection and responsive mobile menu
+- **Verifika** integrates as a hybrid module with shared infrastructure and independent functionality

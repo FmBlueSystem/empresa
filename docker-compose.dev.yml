@@ -48,6 +48,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: development  # Use development stage
+    platform: linux/arm64
     container_name: bluesystem_frontend_dev
     environment:
       - NODE_ENV=development

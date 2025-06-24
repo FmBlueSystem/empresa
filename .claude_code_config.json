@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "mcp-installer": {
+      "command": "npx",
+      "args": [
+        "@anaisbetts/mcp-installer"
+      ]
+    },
+    "server-sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "server-puppeteer": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-puppeteer"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "DEBUG": "context7*",
+        "MCP_LOG_LEVEL": "info"
+      }
+    },
+    "server-memory": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-memory",
+        "-y"
+      ]
+    },
+    "dart-mcp-server": {
+      "command": "npx",
+      "args": [
+        "dart-mcp-server"
+      ],
+      "env": {
+        "DART_TOKEN": "dsa_df88b54b32408afbe42489b08d25bfbf91759ab7d2d1cdac26f4d72b51c71583"
+      }
+    }
+  }
+}

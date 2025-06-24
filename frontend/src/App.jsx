@@ -30,6 +30,7 @@ const AboutPage = createLazyRoute('/sobre-nosotros', () => import('./pages/About
 const PrivacyPage = createLazyRoute('/privacidad', () => import('./pages/PrivacyPage'))
 const TermsPage = createLazyRoute('/terminos', () => import('./pages/TermsPage'))
 const DesarrolloWebPage = createLazyRoute('/servicios/desarrollo-web', () => import('./pages/DesarrolloWebPage'))
+const VerifikaPage = createLazyRoute('/verifika', () => import('./pages/VerifikaPage'))
 
 // Legacy Components (lazy loaded)
 const Dashboard = createLazyRoute('/dashboard', () => import('./components/Dashboard'))
@@ -149,6 +150,7 @@ function App() {
             {/* Páginas principales */}
             <Route path="/servicios" element={<ServicesPage />} />
             <Route path="/casos-de-exito" element={<SuccessStories />} />
+            <Route path="/verifika" element={<VerifikaPage />} />
             <Route path="/contacto" element={<ContactPage />} />
             <Route path="/sobre-nosotros" element={<AboutPage />} />
             
