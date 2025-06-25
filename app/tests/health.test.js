@@ -104,7 +104,7 @@ describe('Health Check Endpoints', () => {
 
       // Accept both 200 and 500 since Redis might not be available in tests
       expect([200, 500]).toContain(response.status);
-      
+
       if (response.status === 200) {
         expect(response.body).toHaveProperty('message', 'API funcionando correctamente');
         expect(response.body).toHaveProperty('timestamp');
@@ -155,4 +155,4 @@ describe('Health Check Endpoints', () => {
       expect(response.headers).toHaveProperty('access-control-allow-credentials', 'true');
     });
   });
-}); 
+});

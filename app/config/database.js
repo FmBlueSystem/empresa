@@ -26,15 +26,15 @@ let pool;
 const initializeDatabase = async () => {
   try {
     pool = mysql.createPool(dbConfig);
-    
+
     // Test connection
     const connection = await pool.getConnection();
     await connection.ping();
     connection.release();
-    
+
     logger.info('✅ Database connected successfully');
     logger.info(`📊 Connected to: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`);
-    
+
     return pool;
   } catch (error) {
     logger.error('❌ Database connection failed:', error);
@@ -48,7 +48,7 @@ const executeQuery = async (query, params = []) => {
     if (!pool) {
       throw new Error('Database pool not initialized');
     }
-    
+
     const [results] = await pool.execute(query, params);
     return results;
   } catch (error) {
@@ -63,16 +63,16 @@ const executeQuery = async (query, params = []) => {
 // Execute transaction
 const executeTransaction = async (queries) => {
   const connection = await pool.getConnection();
-  
+
   try {
     await connection.beginTransaction();
-    
+
     const results = [];
     for (const { query, params } of queries) {
       const [result] = await connection.execute(query, params);
       results.push(result);
     }
-    
+
     await connection.commit();
     return results;
   } catch (error) {
@@ -111,4 +111,4 @@ module.exports = {
   executeTransaction,
   checkHealth,
   closePool
-}; 
+};

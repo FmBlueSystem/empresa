@@ -24,10 +24,10 @@ router.get('/', (req, res) => {
 router.get('/test', async (req, res) => {
   try {
     const cacheKey = 'api:test';
-    
+
     // Try to get from cache first
     let result = await cache.get(cacheKey);
-    
+
     if (!result) {
       // Generate test data
       result = {
@@ -36,13 +36,13 @@ router.get('/test', async (req, res) => {
         cached: false,
         random: Math.random()
       };
-      
+
       // Cache for 60 seconds
       await cache.set(cacheKey, result, 60);
     } else {
       result.cached = true;
     }
-    
+
     res.json(result);
   } catch (error) {
     logger.error('Test endpoint error:', error);
@@ -58,7 +58,7 @@ router.get('/db-test', async (req, res) => {
   try {
     // Test database connection with a simple query
     const result = await executeQuery('SELECT 1 as test, NOW() as timestamp');
-    
+
     res.json({
       message: 'Database connection successful',
       result: result[0],
@@ -93,7 +93,7 @@ router.get('/users', async (req, res) => {
         created_at: new Date().toISOString()
       }
     ];
-    
+
     res.json({
       users,
       total: users.length,
@@ -112,14 +112,14 @@ router.get('/users', async (req, res) => {
 // Auth endpoints (placeholder)
 router.post('/auth/login', (req, res) => {
   const { email, password } = req.body;
-  
+
   if (!email || !password) {
     return res.status(400).json({
       error: 'Missing credentials',
       message: 'Email and password are required'
     });
   }
-  
+
   // This is a placeholder - implement real authentication
   if (email === 'admin@bluesystem.io' && password === 'admin123') {
     res.json({
@@ -161,4 +161,4 @@ router.use('*', (req, res) => {
   });
 });
 
-module.exports = router; 
+module.exports = router;

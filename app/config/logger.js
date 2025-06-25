@@ -90,4 +90,4 @@ logger.rejections.handle(
   })
 );
 
-module.exports = logger; 
+module.exports = logger;

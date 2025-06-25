@@ -74,7 +74,7 @@ const initializeRedis = async () => {
 
     // Connect to Redis
     await client.connect();
-    
+
     return client;
   } catch (error) {
     logger.error('❌ Redis initialization failed:', error);
@@ -91,7 +91,7 @@ const cache = {
         logger.warn('Redis client not available for GET operation');
         return null;
       }
-      
+
       const value = await client.get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
@@ -107,7 +107,7 @@ const cache = {
         logger.warn('Redis client not available for SET operation');
         return false;
       }
-      
+
       await client.setEx(key, ttl, JSON.stringify(value));
       return true;
     } catch (error) {
@@ -123,7 +123,7 @@ const cache = {
         logger.warn('Redis client not available for DEL operation');
         return false;
       }
-      
+
       await client.del(key);
       return true;
     } catch (error) {
@@ -138,7 +138,7 @@ const cache = {
       if (!client || !client.isOpen) {
         return false;
       }
-      
+
       const exists = await client.exists(key);
       return exists === 1;
     } catch (error) {
@@ -153,7 +153,7 @@ const cache = {
       if (!client || !client.isOpen) {
         return false;
       }
-      
+
       await client.expire(key, ttl);
       return true;
     } catch (error) {
@@ -169,7 +169,7 @@ const checkHealth = async () => {
     if (!client || !client.isOpen) {
       return { status: 'unhealthy', message: 'Redis client not connected' };
     }
-    
+
     await client.ping();
     return { status: 'healthy', message: 'Redis connection is active' };
   } catch (error) {
@@ -191,4 +191,4 @@ module.exports = {
   cache,
   checkHealth,
   closeConnection
-}; 
+};
