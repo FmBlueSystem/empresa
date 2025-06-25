@@ -196,7 +196,7 @@ const VerifikaPage = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-dark mb-2">Seguridad Avanzada</h3>
-                    <p className="text-gray-600">Autenticación JWT, roles de usuario y auditoría completa de acciones.</p>
+                    <p className="text-gray-600">Sistema de autenticación seguro, roles de usuario y auditoría completa de acciones.</p>
                   </div>
                 </div>
               </div>
@@ -212,7 +212,7 @@ const VerifikaPage = () => {
                     Estado del Desarrollo
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Proyecto Dart AI ID: slF0dOywYY8R
+                    Sistema de validación de actividades técnicas
                   </p>
                 </div>
 
@@ -240,43 +240,43 @@ const VerifikaPage = () => {
                     <div className="grid md:grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Servidor Express (Puerto 3001)</span>
+                        <span>Servidor web robusto</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Base de Datos MySQL (12 tablas)</span>
+                        <span>Base de datos estructurada</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Autenticación JWT</span>
+                        <span>Autenticación segura</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Roles (Admin/Técnico/Cliente/Validador)</span>
+                        <span>Sistema de roles y permisos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>CRUD Técnicos (19 endpoints)</span>
+                        <span>Gestión de usuarios</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Gestión Competencias (10 endpoints)</span>
+                        <span>Sistema de competencias</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Upload Documentos (Multer)</span>
+                        <span>Carga de documentos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Validaciones Joi Completas</span>
+                        <span>Validación de datos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Redis para Sesiones</span>
+                        <span>Gestión de sesiones</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Logging con Winston</span>
+                        <span>Sistema de logs</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -332,45 +332,45 @@ const VerifikaPage = () => {
 
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <div className="bg-white rounded-xl p-8 shadow-soft border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-dark mb-4">Arquitectura Híbrida</h3>
+                <h3 className="text-xl font-bold text-gray-dark mb-4">Características Principales</h3>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Frontend independiente integrado en Nginx existente
+                    Interfaz intuitiva y fácil de usar
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Microservicio backend conectado a infraestructura actual
+                    Integración perfecta con sistemas existentes
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Esquemas adicionales en MySQL existente
+                    Base de datos segura y confiable
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Sistema de autenticación unificado con JWT
+                    Sistema de autenticación seguro
                   </li>
                 </ul>
               </div>
 
               <div className="bg-white rounded-xl p-8 shadow-soft border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-dark mb-4">URLs de Acceso</h3>
+                <h3 className="text-xl font-bold text-gray-dark mb-4">Beneficios Clave</h3>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Frontend Dev:</strong> http://localhost:5174
+                    <strong>Automatización:</strong> Reduce tiempo de validación manual
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>API Backend:</strong> http://localhost:3001/api
+                    <strong>Transparencia:</strong> Seguimiento en tiempo real de actividades
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Health Check:</strong> http://localhost:3001/health
+                    <strong>Eficiencia:</strong> Optimiza procesos de validación
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Producción:</strong> http://localhost/verifika (Pendiente)
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <strong>Trazabilidad:</strong> Historial completo de actividades
                   </li>
                 </ul>
               </div>
@@ -394,14 +394,12 @@ const VerifikaPage = () => {
                 >
                   Solicitar Demo
                 </Link>
-                <a 
-                  href="https://github.com/BlueSystem/verifika" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <Link 
+                  to="/contacto"
                   className="btn-secondary border-white text-white hover:bg-white hover:text-blue-600"
                 >
-                  Ver en GitHub
-                </a>
+                  Más Información
+                </Link>
               </div>
             </div>
           </section>
