@@ -1,5 +1,6 @@
 import React from 'react';
 import PageHeader from '../components/PageHeader';
+import ContactForm from '../components/ContactForm';
 
 /**
  * Página ContactPage - Contacto de BlueSystem.io (placeholder)
@@ -111,8 +112,19 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Formulario placeholder */}
+            {/* Formulario de contacto funcional */}
             <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-dark mb-4">
+                  Inicia tu Transformación Digital
+                </h2>
+                <p className="text-gray-600 mb-8">
+                  Completa el formulario y nuestro equipo te contactará en las próximas 24 horas 
+                  para discutir cómo podemos revolucionar tu empresa.
+                </p>
+                
+                <ContactForm className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100" />
+              </div>
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 animate-float">

@@ -14,6 +14,7 @@ const logger = require('./config/logger');
 // Import routes
 const healthRoutes = require('./routes/health');
 const apiRoutes = require('./routes/api');
+const contactRoutes = require('./routes/contact');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ app.use(morgan('combined', {
 // Routes
 app.use('/health', healthRoutes);
 app.use('/api', apiRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Root route
 app.get('/', (req, res) => {
