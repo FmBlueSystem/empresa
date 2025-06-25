@@ -66,8 +66,8 @@ app.use(morgan('combined', {
 
 // Routes
 app.use('/health', healthRoutes);
-app.use('/api', apiRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api', apiRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -89,7 +89,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Unhandled error:', err);
 
   if (NODE_ENV === 'development') {

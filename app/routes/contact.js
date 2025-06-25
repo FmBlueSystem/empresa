@@ -20,7 +20,7 @@ const contactLimiter = rateLimit({
 
 // Configuración de Nodemailer
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: process.env.SMTP_PORT || 587,
     secure: false,
@@ -42,7 +42,7 @@ const contactSchema = Joi.object({
       'string.max': 'El nombre no puede exceder 50 caracteres',
       'any.required': 'El nombre es obligatorio'
     }),
-  
+
   email: Joi.string()
     .email()
     .required()
@@ -50,25 +50,33 @@ const contactSchema = Joi.object({
       'string.email': 'El email debe tener un formato válido',
       'any.required': 'El email es obligatorio'
     }),
-  
+
   phone: Joi.string()
-    .pattern(/^[\+]?[\d\s\-\(\)]{10,20}$/)
+    .pattern(/^[+]?[\d\s\-()]{10,20}$/)
     .optional()
     .messages({
       'string.pattern.base': 'El teléfono debe tener un formato válido'
     }),
-  
+
   company: Joi.string()
     .max(100)
     .optional()
     .messages({
       'string.max': 'El nombre de la empresa no puede exceder 100 caracteres'
     }),
-  
+
+  employees: Joi.string()
+    .valid('1-10', '11-50', '51-200', '201-1000', '1000+')
+    .optional(),
+
+  country: Joi.string()
+    .valid('costa-rica', 'guatemala', 'el-salvador', 'honduras', 'nicaragua', 'panama', 'mexico', 'otros')
+    .optional(),
+
   service: Joi.string()
     .valid('sap', 'ia', 'office365', 'desarrollo-web', 'consultoria', 'otro')
     .optional(),
-  
+
   message: Joi.string()
     .min(10)
     .max(1000)
@@ -78,17 +86,14 @@ const contactSchema = Joi.object({
       'string.max': 'El mensaje no puede exceder 1000 caracteres',
       'any.required': 'El mensaje es obligatorio'
     }),
-  
-  budget: Joi.string()
-    .valid('menos-10k', '10k-50k', '50k-100k', 'mas-100k', 'no-definido')
-    .optional(),
-  
+
+
   timeline: Joi.string()
     .valid('inmediato', '1-3-meses', '3-6-meses', '6-12-meses', 'no-definido')
     .optional(),
-  
+
   newsletter: Joi.boolean().optional(),
-  
+
   // Honeypot field para prevenir spam
   website: Joi.string().max(0).optional()
 });
@@ -101,7 +106,7 @@ router.post('/', contactLimiter, async (req, res) => {
   try {
     // Validar datos de entrada
     const { error, value } = contactSchema.validate(req.body);
-    
+
     if (error) {
       logger.warn('Validación de formulario fallida:', error.details);
       return res.status(400).json({
@@ -127,9 +132,10 @@ router.post('/', contactLimiter, async (req, res) => {
       email: value.email.toLowerCase().trim(),
       phone: value.phone?.trim() || '',
       company: value.company?.trim() || '',
+      employees: value.employees || 'no-especificado',
+      country: value.country || 'no-especificado',
       service: value.service || 'no-especificado',
       message: value.message.trim(),
-      budget: value.budget || 'no-definido',
       timeline: value.timeline || 'no-definido',
       newsletter: value.newsletter || false,
       submittedAt: new Date().toISOString(),
@@ -139,7 +145,7 @@ router.post('/', contactLimiter, async (req, res) => {
 
     // Configurar emails
     const transporter = createTransporter();
-    
+
     // Email de notificación interna
     const adminEmailOptions = {
       from: `"BlueSystem.io Contact Form" <${process.env.FROM_EMAIL}>`,
@@ -180,7 +186,7 @@ router.post('/', contactLimiter, async (req, res) => {
 
   } catch (error) {
     logger.error('Error procesando formulario de contacto:', error);
-    
+
     res.status(500).json({
       error: 'Error interno del servidor',
       message: 'No pudimos procesar tu consulta. Por favor intenta nuevamente.'
@@ -194,38 +200,38 @@ router.post('/', contactLimiter, async (req, res) => {
  */
 router.get('/services', (req, res) => {
   const services = [
-    { 
-      value: 'sap', 
+    {
+      value: 'sap',
       label: 'Consultoría SAP',
       description: 'Implementación y optimización SAP S/4HANA'
     },
-    { 
-      value: 'ia', 
+    {
+      value: 'ia',
       label: 'Automatización con IA',
       description: 'Soluciones inteligentes y automatización de procesos'
     },
-    { 
-      value: 'office365', 
+    {
+      value: 'office365',
       label: 'Integraciones Office 365',
       description: 'Conectividad y colaboración en ecosistema Microsoft'
     },
-    { 
-      value: 'desarrollo-web', 
+    {
+      value: 'desarrollo-web',
       label: 'Desarrollo Web Empresarial',
       description: 'Aplicaciones web modernas y escalables'
     },
-    { 
-      value: 'consultoria', 
+    {
+      value: 'consultoria',
       label: 'Consultoría Estratégica',
       description: 'Transformación digital integral'
     },
-    { 
-      value: 'otro', 
+    {
+      value: 'otro',
       label: 'Otro',
       description: 'Proyecto específico o necesidad personalizada'
     }
   ];
-  
+
   res.json({ services });
 });
 
@@ -244,8 +250,9 @@ function generateAdminEmailTemplate(data) {
           <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Email:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.email}</td></tr>
           <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Teléfono:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.phone || 'No proporcionado'}</td></tr>
           <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Empresa:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.company || 'No especificada'}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Tamaño:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.employees}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>País:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.country}</td></tr>
           <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Servicio:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.service}</td></tr>
-          <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Presupuesto:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.budget}</td></tr>
           <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Timeline:</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${data.timeline}</td></tr>
         </table>
         
@@ -276,8 +283,9 @@ Información del Cliente:
 - Email: ${data.email}
 - Teléfono: ${data.phone || 'No proporcionado'}
 - Empresa: ${data.company || 'No especificada'}
+- Tamaño: ${data.employees}
+- País: ${data.country}
 - Servicio: ${data.service}
-- Presupuesto: ${data.budget}
 - Timeline: ${data.timeline}
 
 Mensaje:
@@ -305,9 +313,11 @@ function generateUserEmailTemplate(data) {
         
         <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h3 style="color: #1C5DC4; margin-top: 0;">Resumen de tu consulta:</h3>
+          <p><strong>Empresa:</strong> ${data.company || 'No especificada'}</p>
+          <p><strong>Tamaño:</strong> ${data.employees}</p>
+          <p><strong>País:</strong> ${data.country}</p>
           <p><strong>Servicio:</strong> ${data.service}</p>
           <p><strong>Timeline:</strong> ${data.timeline}</p>
-          <p><strong>Presupuesto:</strong> ${data.budget}</p>
         </div>
         
         <p><strong>¿Qué sigue?</strong></p>
@@ -320,7 +330,8 @@ function generateUserEmailTemplate(data) {
         <p>Si tienes alguna pregunta urgente, puedes contactarnos directamente:</p>
         <ul>
           <li>📧 Email: contacto@bluesystem.io</li>
-          <li>📞 Teléfono: +52-55-1234-5678</li>
+          <li>📞 Teléfono: +506 7219-2010</li>
+          <li>📍 Ubicación: San José, Costa Rica</li>
         </ul>
         
         <div style="text-align: center; margin: 30px 0;">
@@ -344,9 +355,11 @@ Hola ${data.name},
 Hemos recibido tu consulta sobre ${data.service} y nuestro equipo la está revisando.
 
 Resumen de tu consulta:
+- Empresa: ${data.company || 'No especificada'}
+- Tamaño: ${data.employees}
+- País: ${data.country}
 - Servicio: ${data.service}
 - Timeline: ${data.timeline}
-- Presupuesto: ${data.budget}
 
 ¿Qué sigue?
 - Revisaremos tu consulta en las próximas 24 horas
@@ -355,7 +368,8 @@ Resumen de tu consulta:
 
 Contacto directo:
 - Email: contacto@bluesystem.io
-- Teléfono: +52-55-1234-5678
+- Teléfono: +506 7219-2010
+- Ubicación: San José, Costa Rica
 
 Visita: https://bluesystem.io
 
