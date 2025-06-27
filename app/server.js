@@ -8,8 +8,8 @@ require('dotenv').config();
 
 // Import configurations and routes
 const logger = require('./config/logger');
-// const database = require('./config/database');
-// const redis = require('./config/redis');
+const database = require('./config/database');
+const redis = require('./config/redis');
 
 // Import routes
 const healthRoutes = require('./routes/health');
@@ -21,16 +21,7 @@ const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ['\'self\''],
-      styleSrc: ['\'self\'', '\'unsafe-inline\''],
-      scriptSrc: ['\'self\''],
-      imgSrc: ['\'self\'', 'data:', 'https:']
-    }
-  }
-}));
+app.use(helmet());
 
 // CORS configuration
 app.use(cors({
@@ -111,14 +102,14 @@ process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
 
   // Close database connections
-  // if (database.pool) {
-  //   await database.pool.end();
-  // }
+  if (database.pool) {
+    await database.pool.end();
+  }
 
   // Close Redis connection
-  // if (redis.client) {
-  //   await redis.client.quit();
-  // }
+  if (redis.client) {
+    await redis.client.quit();
+  }
 
   process.exit(0);
 });
@@ -127,14 +118,14 @@ process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully');
 
   // Close database connections
-  // if (database.pool) {
-  //   await database.pool.end();
-  // }
+  if (database.pool) {
+    await database.pool.end();
+  }
 
   // Close Redis connection
-  // if (redis.client) {
-  //   await redis.client.quit();
-  // }
+  if (redis.client) {
+    await redis.client.quit();
+  }
 
   process.exit(0);
 });

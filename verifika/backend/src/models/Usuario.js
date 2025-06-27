@@ -25,10 +25,15 @@ class Usuario {
   // Métodos estáticos para consultas de base de datos
   static async findByEmail(email) {
     try {
-      const query = 'SELECT * FROM vf_usuarios WHERE email = ? AND estado != "eliminado"';
-      const [rows] = await database.query(query, [email]);
+      if (!email) {
+        logger.error('Email no proporcionado en findByEmail');
+        return null;
+      }
       
-      if (rows.length === 0) {
+      const query = 'SELECT * FROM vf_usuarios WHERE email = ? AND estado != "eliminado"';
+      const rows = await database.query(query, [email]);
+      
+      if (!rows || rows.length === 0) {
         return null;
       }
       
@@ -42,7 +47,7 @@ class Usuario {
   static async findById(id) {
     try {
       const query = 'SELECT * FROM vf_usuarios WHERE id = ? AND estado != "eliminado"';
-      const [rows] = await database.query(query, [id]);
+      const rows = await database.query(query, [id]);
       
       if (rows.length === 0) {
         return null;
@@ -203,6 +208,15 @@ class Usuario {
 
   async verifyPassword(password) {
     try {
+      // Validar que tenemos tanto la contraseña como el hash
+      if (!password || !this.password_hash) {
+        logger.error('Error al verificar contraseña: password o password_hash undefined', {
+          hasPassword: !!password,
+          hasHash: !!this.password_hash
+        });
+        return false;
+      }
+      
       return await bcrypt.compare(password, this.password_hash);
     } catch (error) {
       logger.error('Error al verificar contraseña:', error);

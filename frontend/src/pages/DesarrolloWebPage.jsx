@@ -6,8 +6,8 @@ import SEO from '../components/SEO';
 import SchemaMarkup from '../components/SchemaMarkup';
 
 /**
- * Página de Desarrollo Web Empresarial
- * Servicio especializado en aplicaciones web modernas, escalables y seguras
+ * Página de Desarrollo de Software Integral
+ * Servicio especializado en desarrollo multiplataforma: web, móvil, escritorio y cloud
  */
 const DesarrolloWebPage = () => {
   
@@ -35,46 +35,77 @@ const DesarrolloWebPage = () => {
     }
   };
 
-  // Datos del servicio
-  const technologies = [
-    { name: 'React', icon: '⚛️', description: 'Interfaces interactivas y modernas' },
-    { name: 'Node.js', icon: '🟢', description: 'Backend escalable y performante' },
-    { name: 'TypeScript', icon: '🔷', description: 'Código robusto y mantenible' },
-    { name: 'Docker', icon: '🐳', description: 'Contenedores y DevOps' },
-    { name: 'AWS/Azure', icon: '☁️', description: 'Arquitectura cloud-native' },
-    { name: 'PostgreSQL', icon: '🐘', description: 'Base de datos empresarial' }
-  ];
+  // Tecnologías por plataforma
+  const platformTechnologies = {
+    web: [
+      { name: 'React', icon: '⚛️', description: 'Interfaces interactivas y modernas' },
+      { name: 'Vue.js', icon: '💚', description: 'Framework progresivo y eficiente' },
+      { name: 'Node.js', icon: '🟢', description: 'Backend JavaScript escalable' },
+      { name: 'TypeScript', icon: '🔷', description: 'Código robusto y mantenible' }
+    ],
+    mobile: [
+      { name: 'React Native', icon: '📱', description: 'Apps multiplataforma nativas' },
+      { name: 'Flutter', icon: '🐦', description: 'UI moderna y performante' },
+      { name: 'Swift', icon: '🍎', description: 'Desarrollo nativo iOS' },
+      { name: 'Kotlin', icon: '🤖', description: 'Desarrollo nativo Android' }
+    ],
+    desktop: [
+      { name: 'Electron', icon: '💻', description: 'Apps cross-platform' },
+      { name: '.NET', icon: '🟦', description: 'Aplicaciones Windows enterprise' },
+      { name: 'Qt', icon: '⚙️', description: 'Alto rendimiento C++' },
+      { name: 'Tauri', icon: '🦀', description: 'Apps ligeras con Rust' }
+    ],
+    cloud: [
+      { name: 'Docker', icon: '🐳', description: 'Contenedores y orquestación' },
+      { name: 'Kubernetes', icon: '☸️', description: 'Orquestación cloud-native' },
+      { name: 'AWS/Azure', icon: '☁️', description: 'Servicios cloud enterprise' },
+      { name: 'Serverless', icon: '⚡', description: 'Functions y microservicios' }
+    ]
+  };
 
-  const features = [
+  // Plataformas de desarrollo
+  const developmentPlatforms = [
     {
-      title: 'Full-Stack Development',
-      description: 'Desarrollo completo desde frontend hasta backend con las mejores tecnologías',
-      icon: '🚀'
+      title: 'Desarrollo Web Avanzado',
+      description: 'Aplicaciones web modernas, escalables y responsivas con tecnologías de vanguardia',
+      icon: '🌐',
+      technologies: ['React', 'Vue.js', 'Node.js', 'TypeScript'],
+      features: ['SPAs & PWAs', 'E-commerce empresarial', 'Dashboards analíticos', 'APIs REST/GraphQL']
     },
     {
-      title: 'APIs RESTful & GraphQL',
-      description: 'Interfaces de programación escalables y eficientes para integración empresarial',
-      icon: '🔌'
+      title: 'Desarrollo Móvil Nativo',
+      description: 'Apps nativas iOS y Android con rendimiento óptimo y acceso completo a funcionalidades del sistema',
+      icon: '📱',
+      technologies: ['Swift', 'Kotlin', 'Xcode', 'Android Studio'],
+      features: ['Performance nativo', 'Integración sistema', 'Push notifications', 'Offline-first']
     },
     {
-      title: 'Arquitectura Cloud-Native',
-      description: 'Aplicaciones diseñadas para la nube con microservicios y contenedores',
-      icon: '☁️'
+      title: 'Desarrollo Móvil Multiplataforma',
+      description: 'Aplicaciones móviles que funcionan en iOS y Android desde una sola base de código',
+      icon: '🔄',
+      technologies: ['React Native', 'Flutter', 'Xamarin', 'Ionic'],
+      features: ['Un código, dos plataformas', 'Desarrollo acelerado', 'UI nativa', 'Hot reload']
     },
     {
-      title: 'Paneles Administrativos',
-      description: 'Dashboards personalizados para gestión y análisis de datos empresariales',
-      icon: '📊'
+      title: 'Desarrollo de Escritorio',
+      description: 'Aplicaciones de escritorio robustas para Windows, macOS y Linux con interfaces modernas',
+      icon: '💻',
+      technologies: ['Electron', '.NET', 'Qt', 'Tauri'],
+      features: ['Cross-platform', 'Interfaz nativa', 'Alto rendimiento', 'Integraciones OS']
     },
     {
-      title: 'Seguridad Empresarial',
-      description: 'Autenticación robusta, autorización y cumplimiento de estándares de seguridad',
-      icon: '🔒'
+      title: 'Backend & APIs Enterprise',
+      description: 'Servicios backend escalables, microservicios y APIs robustas para arquitecturas empresariales',
+      icon: '⚙️',
+      technologies: ['Node.js', 'Python', 'Go', '.NET Core'],
+      features: ['Microservicios', 'APIs escalables', 'Base datos distribuida', 'Message queues']
     },
     {
-      title: 'Integración Legacy',
-      description: 'Conectores con sistemas existentes (SAP, ERP, CRM) sin interrupciones',
-      icon: '🔗'
+      title: 'Desarrollo Cloud-Native',
+      description: 'Aplicaciones diseñadas para la nube con contenedores, serverless y edge computing',
+      icon: '☁️',
+      technologies: ['Docker', 'Kubernetes', 'AWS', 'Azure'],
+      features: ['Serverless functions', 'Auto-scaling', 'Edge computing', 'DevOps integrado']
     }
   ];
 
@@ -120,30 +151,30 @@ const DesarrolloWebPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* SEO específico para Desarrollo Web */}
+      {/* SEO específico para Desarrollo Integral */}
       <SEO 
-        title="Desarrollo Web Empresarial - Aplicaciones Escalables | BlueSystem"
-        description="Desarrollo de aplicaciones web modernas, escalables y seguras para empresas. React, Node.js, Cloud-Native. Transformamos tu visión en software de clase mundial."
-        keywords="desarrollo web empresarial, aplicaciones web escalables, React Node.js, software empresarial, aplicaciones cloud"
-        ogImage="/images/desarrollo-web-og.jpg"
+        title="Desarrollo de Software Integral - Web, Móvil, Escritorio | BlueSystem"
+        description="Desarrollo multiplataforma: aplicaciones web, móviles nativas, apps de escritorio y soluciones cloud. React, Flutter, Electron, microservicios."
+        keywords="desarrollo software integral, aplicaciones multiplataforma, desarrollo web móvil escritorio, React Native Flutter Electron, software empresarial"
+        ogImage="/images/desarrollo-integral-og.jpg"
       />
       
       <SchemaMarkup 
         type="service" 
         data={{
-          name: "Desarrollo Web Empresarial",
-          description: "Aplicaciones web modernas, escalables y seguras diseñadas para empresas",
+          name: "Desarrollo de Software Integral",
+          description: "Desarrollo multiplataforma: web, móvil, escritorio y cloud-native para empresas",
           provider: "BlueSystem",
-          areaServed: "México",
+          areaServed: "Costa Rica",
           availableChannel: "https://bluesystem.io/contacto"
         }}
       />
 
       {/* Header de la página */}
       <PageHeader 
-        title="Desarrollo Web Empresarial"
-        subtitle="No creamos sitios web. Forjamos ecosistemas digitales que convierten procesos empresariales en ventajas competitivas demoledoras."
-        breadcrumb="Servicios / Desarrollo Web"
+        title="Desarrollo de Software Integral"
+        subtitle="No creamos aplicaciones. Forjamos ecosistemas digitales multiplataforma que dominan web, móvil, escritorio y cloud desde una sola estrategia."
+        breadcrumb="Servicios / Desarrollo Integral"
       />
 
       {/* Contenido principal */}
@@ -162,15 +193,15 @@ const DesarrolloWebPage = () => {
                 className="text-3xl md:text-4xl font-bold text-gray-dark mb-6"
                 variants={itemVariants}
               >
-                Mientras otros construyen páginas web, nosotros <span className="text-gradient">fabricamos imperios digitales</span>
+                Mientras otros desarrollan apps, nosotros <span className="text-gradient">conquistamos ecosistemas completos</span>
               </motion.h2>
               
               <motion.p 
                 className="text-lg text-gray-600 leading-relaxed mb-8"
                 variants={itemVariants}
               >
-                Cada línea de código que escribimos está diseñada para <strong>catapultar tu empresa</strong> hacia el dominio total de tu industria. 
-                No vendemos desarrollo web... entregamos <strong>armas de disrupción masiva</strong> disfrazadas de aplicaciones elegantes.
+                Dominamos <strong>todas las plataformas</strong>: web, móvil, escritorio y cloud. Cada proyecto es una 
+                <strong> revolución multiplataforma</strong> que convierte tu presencia digital en supremacía total del mercado.
               </motion.p>
 
               <motion.div 
@@ -217,71 +248,27 @@ const DesarrolloWebPage = () => {
           </div>
         </section>
 
-        {/* Tecnologías y Stack */}
+        {/* Plataformas de Desarrollo */}
         <section className="section-padding bg-gradient-to-br from-blue-50 to-indigo-50">
           <div className="container-custom">
             <motion.div 
-              className="text-center mb-12"
+              className="text-center mb-16"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
               <motion.h3 
-                className="text-3xl font-bold text-gray-dark mb-4"
+                className="text-3xl md:text-4xl font-bold text-gray-dark mb-6"
                 variants={itemVariants}
               >
-                Arsenal Tecnológico de <span className="text-gradient">Última Generación</span>
+                Dominamos <span className="text-gradient">Todas las Plataformas</span>
               </motion.h3>
               <motion.p 
-                className="text-lg text-gray-600 max-w-3xl mx-auto"
+                className="text-lg text-gray-600 max-w-4xl mx-auto"
                 variants={itemVariants}
               >
-                Utilizamos únicamente tecnologías que han demostrado su poder destructivo en los campos de batalla más exigentes del desarrollo empresarial.
-              </motion.p>
-            </motion.div>
-
-            <motion.div 
-              className="grid grid-cols-2 md:grid-cols-3 gap-6"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {technologies.map((tech, index) => (
-                <motion.div 
-                  key={index}
-                  className="card p-6 text-center hover:shadow-xl transition-all duration-300"
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                >
-                  <div className="text-4xl mb-4">{tech.icon}</div>
-                  <h4 className="text-xl font-bold text-gray-dark mb-2">{tech.name}</h4>
-                  <p className="text-gray-600 text-sm">{tech.description}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Características principales */}
-        <section className="section-padding">
-          <div className="container-custom">
-            <motion.div 
-              className="text-center mb-12"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.h3 
-                className="text-3xl font-bold text-gray-dark mb-4"
-                variants={itemVariants}
-              >
-                Capacidades de <span className="text-gradient">Aniquilación Competitiva</span>
-              </motion.h3>
-              <motion.p 
-                className="text-lg text-gray-600 max-w-3xl mx-auto"
-                variants={itemVariants}
-              >
-                Cada funcionalidad está meticulosamente diseñada para convertir tu empresa en el depredador dominante de tu industria.
+                Desde aplicaciones web hasta mobile nativo, escritorio enterprise y arquitecturas cloud. 
+                Una sola estrategia, supremacía multiplataforma total.
               </motion.p>
             </motion.div>
 
@@ -291,21 +278,52 @@ const DesarrolloWebPage = () => {
               initial="hidden"
               animate="visible"
             >
-              {features.map((feature, index) => (
+              {developmentPlatforms.map((platform, index) => (
                 <motion.div 
                   key={index}
-                  className="card p-6 hover:shadow-xl transition-all duration-300"
+                  className="card p-8 hover:shadow-xl transition-all duration-300 h-full"
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h4 className="text-xl font-bold text-gray-dark mb-3">{feature.title}</h4>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <div className="text-5xl mb-6">{platform.icon}</div>
+                  <h4 className="text-xl font-bold text-gray-dark mb-4">{platform.title}</h4>
+                  <p className="text-gray-600 mb-6 leading-relaxed">{platform.description}</p>
+                  
+                  {/* Tecnologías */}
+                  <div className="mb-4">
+                    <h5 className="font-semibold text-gray-dark mb-2 text-sm">Tecnologías:</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {platform.technologies.map((tech, techIndex) => (
+                        <span 
+                          key={techIndex}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Características */}
+                  <div>
+                    <h5 className="font-semibold text-gray-dark mb-2 text-sm">Capacidades:</h5>
+                    <ul className="space-y-1">
+                      {platform.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="flex items-center gap-2 text-sm text-gray-600">
+                          <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
           </div>
         </section>
+
 
         {/* Proceso de desarrollo */}
         <section className="section-padding bg-gradient-to-br from-gray-50 to-gray-100">
@@ -320,13 +338,13 @@ const DesarrolloWebPage = () => {
                 className="text-3xl font-bold text-gray-dark mb-4"
                 variants={itemVariants}
               >
-                Protocolo <span className="text-gradient">Blue Development</span>
+                Protocolo <span className="text-gradient">Blue Multiplataforma</span>
               </motion.h3>
               <motion.p 
                 className="text-lg text-gray-600 max-w-3xl mx-auto"
                 variants={itemVariants}
               >
-                Nuestra metodología secreta de 5 fases que convierte ideas empresariales en software de dominación absoluta.
+                Nuestra metodología secreta de 5 fases que convierte ideas empresariales en ecosistemas digitales omnipresentes.
               </motion.p>
             </motion.div>
 
@@ -452,27 +470,27 @@ const DesarrolloWebPage = () => {
                 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">850+</div>
-                    <div className="text-sm text-gray-600">Comunidades Impactadas</div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">25+</div>
+                    <div className="text-sm text-gray-600">Proyectos Entregados</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">2,400+</div>
-                    <div className="text-sm text-gray-600">Personas Capacitadas</div>
+                    <div className="text-3xl font-bold text-blue-600 mb-2">50+</div>
+                    <div className="text-sm text-gray-600">Usuarios Impactados</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-purple-600 mb-2">95%</div>
-                    <div className="text-sm text-gray-600">Reducción Brecha Digital</div>
+                    <div className="text-sm text-gray-600">Satisfacción Cliente</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">150+</div>
-                    <div className="text-sm text-gray-600">Organizaciones Aliadas</div>
+                    <div className="text-3xl font-bold text-orange-600 mb-2">6</div>
+                    <div className="text-sm text-gray-600">Tecnologías Dominadas</div>
                   </div>
                 </div>
 
                 <div className="mt-8 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
                   <p className="text-sm text-gray-700 text-center">
                     <strong>🏆 Reconocimiento ONU 2024:</strong><br/>
-                    "Mejor Iniciativa de Inclusión Digital en Latinoamérica"
+                    &quot;Mejor Iniciativa de Inclusión Digital en Latinoamérica&quot;
                   </p>
                 </div>
               </motion.div>
@@ -632,4 +650,4 @@ const DesarrolloWebPage = () => {
   );
 };
 
-export default DesarrolloWebPage; 
+export default DesarrolloWebPage;

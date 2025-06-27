@@ -31,23 +31,19 @@ jobs:
 
       - name: 📦 Install Backend Dependencies
         working-directory: ./app
-        run: |
-          npm ci
+        run: npm ci
           
       - name: 📦 Install Frontend Dependencies
         working-directory: ./frontend
-        run: |
-          npm ci
+        run: npm ci
 
       - name: 🧹 Lint Backend Code
         working-directory: ./app
-        run: |
-          npm run lint || echo "Linting completed with warnings"
+        run: npm run lint
 
       - name: 🧹 Lint Frontend Code
         working-directory: ./frontend
-        run: |
-          npm run lint || echo "Linting completed with warnings"
+        run: npm run lint
 
   # Job 2: Tests del Backend
   backend-tests:
@@ -109,8 +105,7 @@ jobs:
           REDIS_PORT: 6379
           JWT_SECRET: test-jwt-secret-for-ci
           JWT_REFRESH_SECRET: test-refresh-secret-for-ci
-        run: |
-          npm test
+        run: npm test
 
       - name: 📊 Generate Test Coverage
         working-directory: ./app
@@ -125,8 +120,7 @@ jobs:
           REDIS_PORT: 6379
           JWT_SECRET: test-jwt-secret-for-ci
           JWT_REFRESH_SECRET: test-refresh-secret-for-ci
-        run: |
-          npm run test:coverage || echo "Coverage generation completed"
+        run: npm run test:coverage
 
   # Job 3: Tests del Frontend
   frontend-tests:
@@ -155,8 +149,7 @@ jobs:
 
       - name: 🧪 Run Frontend Tests
         working-directory: ./frontend
-        run: |
-          npm test || echo "Frontend tests completed"
+        run: npm test
 
   # Job 4: Validación de Docker
   docker-validation:
@@ -178,7 +171,7 @@ jobs:
           file: ./app/Dockerfile
           push: false
           tags: bluesystem-backend:test
-          target: development
+          target: production
 
       - name: 🐳 Build Frontend Docker Image
         uses: docker/build-push-action@v5
@@ -187,7 +180,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: false
           tags: bluesystem-frontend:test
-          target: development
+          target: production
 
   # Job 5: Validación de configuración
   config-validation:
@@ -226,6 +219,7 @@ jobs:
             grep -q "REDIS_HOST" .env.example && echo "✅ REDIS_HOST found"
           else
             echo "⚠️ .env.example not found"
+            exit 1
           fi
 
   # Job 6: Security Scan
@@ -244,13 +238,11 @@ jobs:
 
       - name: 🔍 Run Backend Security Audit
         working-directory: ./app
-        run: |
-          npm audit --audit-level=high || echo "Security audit completed with warnings"
+        run: npm audit --audit-level=high
 
       - name: 🔍 Run Frontend Security Audit
         working-directory: ./frontend
-        run: |
-          npm audit --audit-level=high || echo "Security audit completed with warnings"
+        run: npm audit --audit-level=high
 
   # Job 7: Deployment Ready Check
   deployment-ready:

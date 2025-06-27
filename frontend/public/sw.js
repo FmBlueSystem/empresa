@@ -94,19 +94,16 @@ const RESOURCE_CONFIG = {
  * Install Event - Preload critical resources
  */
 self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker: Installing...');
   
   event.waitUntil(
     Promise.all([
       // Cache static assets
       caches.open(STATIC_CACHE).then((cache) => {
-        console.log('📦 Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       }),
       
       // Preload critical routes
       caches.open(DYNAMIC_CACHE).then((cache) => {
-        console.log('🚀 Preloading critical routes');
         return Promise.all(
           CRITICAL_ROUTES.map(route => 
             fetch(route).then(response => {
@@ -118,7 +115,6 @@ self.addEventListener('install', (event) => {
         );
       })
     ]).then(() => {
-      console.log('✅ Service Worker: Installation complete');
       // Skip waiting to activate immediately
       return self.skipWaiting();
     })
@@ -129,7 +125,6 @@ self.addEventListener('install', (event) => {
  * Activate Event - Clean old caches
  */
 self.addEventListener('activate', (event) => {
-  console.log('🎯 Service Worker: Activating...');
   
   event.waitUntil(
     Promise.all([
@@ -139,7 +134,6 @@ self.addEventListener('activate', (event) => {
           cacheNames.map((cacheName) => {
             if (cacheName.includes('bluesystem') && 
                 !cacheName.includes(CACHE_VERSION)) {
-              console.log('🗑️ Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
@@ -149,7 +143,6 @@ self.addEventListener('activate', (event) => {
       // Claim all clients
       self.clients.claim()
     ]).then(() => {
-      console.log('✅ Service Worker: Activation complete');
     })
   );
 });
@@ -377,7 +370,6 @@ async function cleanupCache(cache, expiration) {
  * Background Sync for offline actions
  */
 self.addEventListener('sync', (event) => {
-  console.log('🔄 Background sync:', event.tag);
   
   if (event.tag === 'contact-form') {
     event.waitUntil(syncContactForm());
@@ -405,7 +397,6 @@ async function syncContactForm() {
         if (response.ok) {
           // Remove from offline storage
           await removeOfflineSubmission(submission.id);
-          console.log('✅ Offline submission synced:', submission.id);
         }
       } catch (error) {
         console.warn('❌ Failed to sync submission:', submission.id, error);
@@ -424,14 +415,12 @@ async function getOfflineSubmissions() {
 
 async function removeOfflineSubmission(id) {
   // TODO: Implement IndexedDB operations
-  console.log('Removing offline submission:', id);
 }
 
 /**
  * Push notification handler
  */
 self.addEventListener('push', (event) => {
-  console.log('📩 Push notification received');
   
   const options = {
     body: event.data ? event.data.text() : 'Nueva actualización disponible',
@@ -465,7 +454,6 @@ self.addEventListener('push', (event) => {
  * Notification click handler
  */
 self.addEventListener('notificationclick', (event) => {
-  console.log('🔔 Notification clicked:', event.action);
   
   event.notification.close();
   
@@ -475,5 +463,3 @@ self.addEventListener('notificationclick', (event) => {
     );
   }
 });
-
-console.log('🚀 BlueSystem.io Service Worker loaded');

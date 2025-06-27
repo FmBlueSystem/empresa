@@ -62,7 +62,6 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Lazy component loading error:', error, errorInfo);
     
     // Report to analytics
     if (typeof gtag !== 'undefined') {
@@ -148,12 +147,10 @@ export const robustImport = (importFunc, maxRetries = 3) => {
           retries++;
           
           if (retries <= maxRetries) {
-            console.warn(`Import failed, retrying (${retries}/${maxRetries}):`, error);
             
             // Exponential backoff
             setTimeout(attemptImport, Math.pow(2, retries) * 1000);
           } else {
-            console.error('Import failed after max retries:', error);
             reject(error);
           }
         });
@@ -253,9 +250,6 @@ export const useLazySections = () => {
 export const trackLoadingPerformance = (componentName, startTime) => {
   const loadTime = performance.now() - startTime;
   
-  // Log performance metrics
-  console.log(`Component ${componentName} loaded in ${loadTime.toFixed(2)}ms`);
-  
   // Send to analytics
   if (typeof gtag !== 'undefined') {
     gtag('event', 'timing_complete', {
@@ -276,7 +270,6 @@ export const trackLoadingPerformance = (componentName, startTime) => {
         `${componentName}-loaded`
       );
     } catch (error) {
-      console.warn('Performance measurement failed:', error);
     }
   }
 };
@@ -294,10 +287,6 @@ export const optimizeImports = {
  */
 export const analyzeBundleSize = () => {
   if (import.meta.env.DEV) {
-    console.group('📦 Bundle Analysis');
-    console.log('Main bundle chunks:', performance.getEntriesByType('navigation'));
-    console.log('Resource timing:', performance.getEntriesByType('resource'));
-    console.groupEnd();
   }
 };
 

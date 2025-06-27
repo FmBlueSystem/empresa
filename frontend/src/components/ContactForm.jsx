@@ -14,8 +14,9 @@ const ContactForm = ({ className = '' }) => {
     company: '',
     service: '',
     message: '',
-    budget: '',
     timeline: '',
+    companyType: '', // Nuevo campo para el tipo de empresa
+    employeeSize: '', // Nuevo campo para el tamaño de empleados
     newsletter: false,
     website: '' // Honeypot field
   });
@@ -31,17 +32,27 @@ const ContactForm = ({ className = '' }) => {
     { value: 'sap', label: 'Consultoría SAP' },
     { value: 'ia', label: 'Automatización con IA' },
     { value: 'office365', label: 'Integraciones Office 365' },
-    { value: 'desarrollo-web', label: 'Desarrollo Web Empresarial' },
+    { value: 'desarrollo-web', label: 'Desarrollo de Software Integral' },
+    { value: 'blueconnect', label: 'BlueConnect - Conectividad Inteligente' },
     { value: 'consultoria', label: 'Consultoría Estratégica' },
     { value: 'otro', label: 'Otro' }
   ];
 
-  const budgetOptions = [
-    { value: 'menos-10k', label: 'Menos de $10,000 USD' },
-    { value: '10k-50k', label: '$10,000 - $50,000 USD' },
-    { value: '50k-100k', label: '$50,000 - $100,000 USD' },
-    { value: 'mas-100k', label: 'Más de $100,000 USD' },
-    { value: 'no-definido', label: 'No definido aún' }
+  const companyTypeOptions = [
+    { value: 'startup', label: 'Startup' },
+    { value: 'pyme', label: 'Pequeña y Mediana Empresa (PyME)' },
+    { value: 'gran-empresa', label: 'Gran Empresa / Corporación' },
+    { value: 'ong', label: 'Organización sin fines de lucro (ONG)' },
+    { value: 'gobierno', label: 'Entidad Gubernamental' },
+    { value: 'otro', label: 'Otro' }
+  ];
+
+  const employeeSizeOptions = [
+    { value: '1-10', label: '1-10 empleados' },
+    { value: '11-50', label: '11-50 empleados' },
+    { value: '51-200', label: '51-200 empleados' },
+    { value: '201-500', label: '201-500 empleados' },
+    { value: '500+', label: 'Más de 500 empleados' }
   ];
 
   const timelineOptions = [
@@ -68,7 +79,7 @@ const ContactForm = ({ className = '' }) => {
       errors.email = 'El email debe tener un formato válido';
     }
 
-    if (formData.phone && !/^[\+]?[\d\s\-\(\)]{10,20}$/.test(formData.phone)) {
+    if (formData.phone && !/^[+]?[\d\s-()./]{10,20}$/.test(formData.phone)) {
       errors.phone = 'El teléfono debe tener un formato válido';
     }
 
@@ -171,14 +182,15 @@ const ContactForm = ({ className = '' }) => {
         company: '',
         service: '',
         message: '',
-        budget: '',
         timeline: '',
+        companyType: '', // Nuevo campo para el tipo de empresa
+        employeeSize: '', // Nuevo campo para el tamaño de empleados
         newsletter: false,
         website: ''
       });
 
     } catch (error) {
-      console.error('Error enviando formulario:', error);
+      // console.error('Error enviando formulario:', error);
       setFormState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -298,7 +310,7 @@ const ContactForm = ({ className = '' }) => {
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
               formState.errors.phone ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="+52 55 1234 5678"
+            placeholder="+506 7219-2010"
             disabled={formState.isSubmitting}
           />
           {formState.errors.phone && (
@@ -347,25 +359,46 @@ const ContactForm = ({ className = '' }) => {
         </div>
 
         <div>
-          <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-2">
-            Presupuesto estimado
+          <label htmlFor="companyType" className="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de empresa
           </label>
           <select
-            id="budget"
-            name="budget"
-            value={formData.budget}
+            id="companyType"
+            name="companyType"
+            value={formData.companyType}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             disabled={formState.isSubmitting}
           >
-            <option value="">Selecciona un rango</option>
-            {budgetOptions.map(option => (
+            <option value="">Selecciona el tipo de empresa</option>
+            {companyTypeOptions.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="employeeSize" className="block text-sm font-medium text-gray-700 mb-2">
+          Tamaño de empleados
+        </label>
+        <select
+          id="employeeSize"
+          name="employeeSize"
+          value={formData.employeeSize}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          disabled={formState.isSubmitting}
+        >
+          <option value="">Selecciona el tamaño de empleados</option>
+          {employeeSizeOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
@@ -400,7 +433,7 @@ const ContactForm = ({ className = '' }) => {
           rows={5}
           value={formData.message}
           onChange={handleChange}
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical ${
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
             formState.errors.message ? 'border-red-500' : 'border-gray-300'
           }`}
           placeholder="Cuéntanos sobre tu proyecto, desafíos actuales y objetivos..."
@@ -460,7 +493,7 @@ const ContactForm = ({ className = '' }) => {
             <div className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0c5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Enviando...
             </div>

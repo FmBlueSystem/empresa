@@ -30,6 +30,7 @@ const Navbar = () => {
   const navLinks = [
     { path: '/', label: 'Inicio' },
     { path: '/servicios', label: 'Servicios' },
+    { path: '/blueconnect', label: 'BlueConnect' },
     { path: '/casos-de-exito', label: 'Casos de Éxito' },
     { path: '/verifika', label: 'Verifika' },
     { path: '/contacto', label: 'Contacto' }

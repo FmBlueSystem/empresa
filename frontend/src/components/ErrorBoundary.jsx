@@ -53,15 +53,6 @@ class ErrorBoundary extends React.Component {
       retryCount: this.state.retryCount
     };
 
-    // Log local para desarrollo
-    if (import.meta.env.DEV) {
-      console.group('🚨 Error Boundary Caught Error');
-      console.error('Error:', error);
-      console.error('Error Info:', errorInfo);
-      console.log('Error Data:', errorData);
-      console.groupEnd();
-    }
-
     // Reportar a Google Analytics si está disponible
     if (typeof gtag !== 'undefined') {
       gtag('event', 'exception', {
@@ -87,7 +78,6 @@ class ErrorBoundary extends React.Component {
       });
     } catch (err) {
       // Silently fail - no queremos errores en el error boundary
-      console.warn('Failed to send error to logging service:', err);
     }
   };
 
@@ -266,18 +256,6 @@ export const useErrorReporting = () => {
       timestamp: new Date().toISOString(),
       type: 'manual_report'
     };
-
-    // Log local
-    console.error('Manual error report:', error, context);
-
-    // Reportar a analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'exception', {
-        description: `Manual: ${error.message}`,
-        fatal: false,
-        context: JSON.stringify(context)
-      });
-    }
 
     // Enviar a servicio
     fetch('/api/errors', {

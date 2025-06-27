@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 
+// Main application entry point
+
 // Error boundary component
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -22,7 +24,6 @@ class ErrorBoundary extends React.Component {
     
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('Error caught by boundary:', error, errorInfo);
     }
   }
 
@@ -61,4 +62,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <App />
     </ErrorBoundary>
   </React.StrictMode>,
-) 
+)
