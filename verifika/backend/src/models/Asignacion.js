@@ -1,5 +1,5 @@
 // Asignacion.js - Modelo para gestión de asignaciones técnico-cliente en Verifika
-const db = require('../config/database');
+const database = require('../config/database');
 const logger = require('../config/logger');
 
 class Asignacion {
@@ -114,11 +114,12 @@ class Asignacion {
         creadoPor
       ];
 
-      const [result] = await db.execute(query, valores);
-      const asignacion = await this.findById(result.insertId);
+      const result = await database.query(query, valores);
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
+      const asignacion = await this.findById(insertId);
 
       logger.info('Asignación creada exitosamente', {
-        asignacion_id: result.insertId,
+        asignacion_id: insertId,
         tecnico_id: asignacionData.tecnico_id,
         cliente_id: asignacionData.cliente_id,
         creado_por: creadoPor
@@ -150,7 +151,8 @@ class Asignacion {
         GROUP BY a.id
       `;
 
-      const [rows] = await db.execute(query, [id]);
+      const result = await database.query(query, [id]);
+      const rows = Array.isArray(result) ? result : [result];
       
       if (rows.length === 0) {
         return null;
@@ -280,9 +282,10 @@ class Asignacion {
       const limit = Math.min(parseInt(filtros.limit) || 20, 100);
       const offset = Math.max(parseInt(filtros.offset) || 0, 0);
       query += ' LIMIT ? OFFSET ?';
-      valores.push(limit, offset);
+      valores.push(parseInt(limit), parseInt(offset));
 
-      const [rows] = await db.execute(query, valores);
+      const result = await database.query(query, valores);
+      const rows = Array.isArray(result) ? result : [result];
 
       return rows.map(row => {
         // Parsear JSON fields
@@ -380,7 +383,7 @@ class Asignacion {
       valores.push(this.id);
 
       const query = `UPDATE vf_asignaciones SET ${actualizaciones.join(', ')} WHERE id = ?`;
-      await db.execute(query, valores);
+      await database.query(query, valores);
 
       // Actualizar propiedades del objeto
       Object.assign(this, datosActualizacion);
@@ -438,7 +441,8 @@ class Asignacion {
         WHERE asignacion_id = ?
       `;
 
-      const [rows] = await db.execute(query, [this.id]);
+      const result = await database.query(query, [this.id]);
+      const rows = Array.isArray(result) ? result : [result];
       const stats = rows[0];
 
       let porcentaje = 0;
@@ -467,7 +471,8 @@ class Asignacion {
   static async validateTecnico(tecnicoId) {
     try {
       const query = 'SELECT id, estado FROM vf_usuarios WHERE id = ? AND rol = "tecnico"';
-      const [rows] = await db.execute(query, [tecnicoId]);
+      const result = await database.query(query, [tecnicoId]);
+      const rows = Array.isArray(result) ? result : [result];
       return rows.length > 0 && rows[0].estado === 'activo' ? rows[0] : null;
     } catch (error) {
       logger.error('Error al validar técnico:', error);
@@ -479,7 +484,8 @@ class Asignacion {
   static async validateCliente(clienteId) {
     try {
       const query = 'SELECT id, estado FROM vf_clientes WHERE id = ?';
-      const [rows] = await db.execute(query, [clienteId]);
+      const result = await database.query(query, [clienteId]);
+      const rows = Array.isArray(result) ? result : [result];
       return rows.length > 0 && rows[0].estado === 'activo' ? rows[0] : null;
     } catch (error) {
       logger.error('Error al validar cliente:', error);
@@ -491,7 +497,8 @@ class Asignacion {
   static async validateProyecto(proyectoId, clienteId) {
     try {
       const query = 'SELECT id FROM vf_proyectos WHERE id = ? AND cliente_id = ? AND estado IN ("activo", "planificacion")';
-      const [rows] = await db.execute(query, [proyectoId, clienteId]);
+      const result = await database.query(query, [proyectoId, clienteId]);
+      const rows = Array.isArray(result) ? result : [result];
       return rows.length > 0 ? rows[0] : null;
     } catch (error) {
       logger.error('Error al validar proyecto:', error);
@@ -515,7 +522,8 @@ class Asignacion {
       `;
 
       const valores = [tecnicoId, ...competenciasRequeridas];
-      const [rows] = await db.execute(query, valores);
+      const result = await database.query(query, valores);
+      const rows = Array.isArray(result) ? result : [result];
       
       const competenciasTecnico = rows.map(row => row.nombre);
       const missing = competenciasRequeridas.filter(comp => !competenciasTecnico.includes(comp));
@@ -540,7 +548,8 @@ class Asignacion {
         FROM vf_tecnicos_perfiles tp 
         WHERE tp.usuario_id = ?
       `;
-      const [tecnicoRows] = await db.execute(tecnicoQuery, [tecnicoId]);
+      const tecnicoResult = await database.query(tecnicoQuery, [tecnicoId]);
+      const tecnicoRows = Array.isArray(tecnicoResult) ? tecnicoResult[0] : tecnicoResult;
       
       if (tecnicoRows.length === 0 || tecnicoRows[0].disponibilidad !== 'disponible') {
         return {
@@ -562,9 +571,10 @@ class Asignacion {
           )
       `;
 
-      const [conflictRows] = await db.execute(conflictQuery, [
+      const conflictResult = await database.query(conflictQuery, [
         tecnicoId, fechaInicio, fechaInicio, fechaFin, fechaFin, fechaInicio, fechaFin
       ]);
+      const conflictRows = Array.isArray(conflictResult) ? conflictResult[0] : conflictResult;
 
       if (conflictRows[0].conflictos > 0) {
         return {
@@ -597,7 +607,8 @@ class Asignacion {
         FROM vf_asignaciones
       `;
 
-      const [rows] = await db.execute(query);
+      const result = await database.query(query);
+      const rows = Array.isArray(result) ? result : [result];
       return rows[0];
     } catch (error) {
       logger.error('Error al obtener estadísticas de asignaciones:', error);

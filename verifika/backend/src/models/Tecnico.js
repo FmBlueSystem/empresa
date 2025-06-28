@@ -41,7 +41,7 @@ class Tecnico {
         const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash(usuarioData.password || 'temp123', 10);
         
-        const usuarioResult = await connection.execute(`
+        const usuarioResult = await connection.query(`
           INSERT INTO vf_usuarios (email, password_hash, nombre, apellido, telefono, rol, estado, email_verificado)
           VALUES (?, ?, ?, ?, ?, 'tecnico', 'pendiente', FALSE)
         `, [
@@ -52,12 +52,12 @@ class Tecnico {
           usuarioData.telefono || null
         ]);
         
-        usuario_id = usuarioResult[0].insertId;
+        usuario_id = Array.isArray(usuarioResult) ? usuarioResult[0].insertId : usuarioResult.insertId;
         logger.info(`Usuario técnico creado con ID: ${usuario_id}`);
       }
 
       // 2. Crear perfil técnico
-      const [result] = await connection.execute(`
+      const result = await connection.query(`
         INSERT INTO vf_tecnicos_perfiles (
           usuario_id, numero_identificacion, fecha_nacimiento, direccion, ciudad, pais,
           experiencia_anos, nivel_experiencia, disponibilidad, tarifa_por_hora, moneda, biografia
@@ -79,7 +79,8 @@ class Tecnico {
 
       await database.commitTransaction(connection);
       
-      const tecnico = await this.findById(result.insertId);
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
+      const tecnico = await this.findById(insertId);
       logger.info(`Técnico creado exitosamente: ${tecnico.nombre_completo}`);
       
       return tecnico;
@@ -94,7 +95,7 @@ class Tecnico {
   // Buscar técnico por ID
   static async findById(id) {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tp.*,
           u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado,
@@ -104,7 +105,8 @@ class Tecnico {
         WHERE tp.id = ?
       `, [id]);
 
-      if (rows.length === 0) return null;
+      const rows = Array.isArray(result) ? result : [result];
+      if (!rows || rows.length === 0) return null;
 
       const tecnico = new Tecnico(rows[0]);
       tecnico.nombre_completo = `${tecnico.nombre} ${tecnico.apellido}`;
@@ -119,7 +121,7 @@ class Tecnico {
   // Buscar técnico por usuario_id
   static async findByUserId(usuario_id) {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tp.*,
           u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado
@@ -128,6 +130,7 @@ class Tecnico {
         WHERE tp.usuario_id = ?
       `, [usuario_id]);
 
+      const rows = Array.isArray(result) ? result : [result];
       if (rows.length === 0) return null;
       
       const tecnico = new Tecnico(rows[0]);
@@ -185,12 +188,11 @@ class Tecnico {
         params.push(`%${search}%`, `%${search}%`, `%${search}%`);
       }
 
-      // Query principal
+      // Query principal (sin COUNT(*) OVER() para evitar problemas)
       const query = `
         SELECT 
           tp.*,
-          u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado,
-          COUNT(*) OVER() as total_count
+          u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado
         FROM vf_tecnicos_perfiles tp
         INNER JOIN vf_usuarios u ON tp.usuario_id = u.id
         ${joinClause}
@@ -199,8 +201,24 @@ class Tecnico {
         LIMIT ? OFFSET ?
       `;
 
-      params.push(limit, offset);
-      const [rows] = await database.query(query, params);
+      // Query para contar total
+      const countQuery = `
+        SELECT COUNT(*) as total
+        FROM vf_tecnicos_perfiles tp
+        INNER JOIN vf_usuarios u ON tp.usuario_id = u.id
+        ${joinClause}
+        ${whereClause}
+      `;
+
+      // Ejecutar ambas consultas
+      params.push(parseInt(limit), parseInt(offset));
+      const result = await database.query(query, params);
+      const rows = Array.isArray(result) ? result : [result];
+
+      // Contar total (sin limit/offset)
+      const countParams = params.slice(0, -2); // Remove limit and offset
+      const countResult = await database.query(countQuery, countParams);
+      const countRows = Array.isArray(countResult) ? countResult : [countResult];
 
       const tecnicos = rows.map(row => {
         const tecnico = new Tecnico(row);
@@ -208,7 +226,7 @@ class Tecnico {
         return tecnico;
       });
 
-      const totalCount = rows.length > 0 ? rows[0].total_count : 0;
+      const totalCount = countRows.length > 0 ? countRows[0].total : 0;
 
       return {
         tecnicos,
@@ -297,7 +315,7 @@ class Tecnico {
   // Obtener competencias del técnico
   async getCompetencias() {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tc.*,
           cc.nombre, cc.descripcion, cc.categoria, cc.nivel_requerido,
@@ -318,7 +336,7 @@ class Tecnico {
   // Agregar competencia al técnico
   async addCompetencia(competencia_id, nivel_actual = 'basico', certificado = false) {
     try {
-      const [result] = await database.query(`
+      const result = await database.query(`
         INSERT INTO vf_tecnicos_competencias (tecnico_id, competencia_id, nivel_actual, certificado)
         VALUES (?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE 
@@ -339,7 +357,7 @@ class Tecnico {
   // Obtener documentos del técnico
   async getDocumentos() {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT *
         FROM vf_tecnicos_documentos
         WHERE tecnico_id = ?
@@ -356,7 +374,7 @@ class Tecnico {
   // Estadísticas de técnicos
   static async getStats() {
     try {
-      const [stats] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tp.disponibilidad,
           tp.nivel_experiencia,
@@ -368,6 +386,7 @@ class Tecnico {
         ORDER BY tp.disponibilidad, tp.nivel_experiencia
       `);
 
+      const stats = Array.isArray(result) ? result : [result];
       return stats;
     } catch (error) {
       logger.error('Error obteniendo estadísticas de técnicos:', error);
@@ -395,7 +414,7 @@ class Tecnico {
         params.push(...competencias_requeridas, competencias_requeridas.length);
       }
 
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tp.*,
           u.email, u.nombre, u.apellido, u.telefono, u.estado
