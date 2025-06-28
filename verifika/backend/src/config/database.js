@@ -23,9 +23,6 @@ class Database {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME || 'bluesystem',
       connectionLimit: 10,
-      acquireTimeout: 60000,
-      timeout: 60000,
-      reconnect: true,
       charset: 'utf8mb4',
       timezone: 'local'
     };
@@ -61,12 +58,25 @@ class Database {
 
   async query(sql, params = []) {
     try {
-      const [rows] = await this.pool.execute(sql, params);
+      // Validar parámetros antes de ejecutar
+      const cleanParams = params.map(param => param === undefined ? null : param);
+      
+      // Debug para queries problemáticas
+      if (cleanParams.some(param => param === undefined)) {
+        logger.error('❌ Parámetros undefined detectados:', { sql, params: cleanParams });
+        throw new Error('Query contiene parámetros undefined');
+      }
+      
+      const [rows] = await this.pool.execute(sql, cleanParams);
       return rows;
     } catch (error) {
       logger.error('❌ Error en query:', { sql, params, error: error.message });
       throw error;
     }
+  }
+
+  async getConnection() {
+    return await this.pool.getConnection();
   }
 
   async beginTransaction() {
@@ -95,7 +105,7 @@ class Database {
   // Métodos específicos para Verifika
   async healthCheck() {
     try {
-      const [rows] = await this.pool.execute('SELECT 1 as health_check');
+      await this.pool.execute('SELECT 1 as health_check');
       return {
         status: 'healthy',
         message: 'MySQL connection OK',

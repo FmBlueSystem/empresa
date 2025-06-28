@@ -8,33 +8,25 @@ require('dotenv').config();
 
 // Import configurations and routes
 const logger = require('./config/logger');
-// const database = require('./config/database');
-// const redis = require('./config/redis');
+const database = require('./config/database');
+const redis = require('./config/redis');
 
 // Import routes
 const healthRoutes = require('./routes/health');
 const apiRoutes = require('./routes/api');
+const contactRoutes = require('./routes/contact');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
+app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: NODE_ENV === 'production' ? 
-    [process.env.FRONTEND_URL, process.env.DOMAIN] : 
+  origin: NODE_ENV === 'production' ?
+    [process.env.FRONTEND_URL, process.env.DOMAIN] :
     ['http://localhost:3000', 'http://localhost:5173'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -65,6 +57,7 @@ app.use(morgan('combined', {
 
 // Routes
 app.use('/health', healthRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api', apiRoutes);
 
 // Root route
@@ -79,7 +72,7 @@ app.get('/', (req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
     message: `Cannot ${req.method} ${req.originalUrl}`
@@ -87,9 +80,9 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Unhandled error:', err);
-  
+
   if (NODE_ENV === 'development') {
     res.status(500).json({
       error: 'Internal server error',
@@ -107,33 +100,33 @@ app.use((err, req, res, next) => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
-  
+
   // Close database connections
-  // if (database.pool) {
-  //   await database.pool.end();
-  // }
-  
+  if (database.pool) {
+    await database.pool.end();
+  }
+
   // Close Redis connection
-  // if (redis.client) {
-  //   await redis.client.quit();
-  // }
-  
+  if (redis.client) {
+    await redis.client.quit();
+  }
+
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully');
-  
+
   // Close database connections
-  // if (database.pool) {
-  //   await database.pool.end();
-  // }
-  
+  if (database.pool) {
+    await database.pool.end();
+  }
+
   // Close Redis connection
-  // if (redis.client) {
-  //   await redis.client.quit();
-  // }
-  
+  if (redis.client) {
+    await redis.client.quit();
+  }
+
   process.exit(0);
 });
 
@@ -154,4 +147,4 @@ if (process.env.NODE_ENV !== 'test' && require.main === module) {
   });
 }
 
-module.exports = app; 
+module.exports = app;

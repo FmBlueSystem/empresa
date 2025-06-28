@@ -17,7 +17,7 @@ class Competencia {
   // Crear nueva competencia
   static async create(competenciaData) {
     try {
-      const [result] = await database.query(`
+      const result = await database.query(`
         INSERT INTO vf_competencias_catalogo (
           nombre, descripcion, categoria, nivel_requerido, certificacion_requerida, activo
         ) VALUES (?, ?, ?, ?, ?, ?)
@@ -30,7 +30,10 @@ class Competencia {
         competenciaData.activo !== undefined ? competenciaData.activo : true
       ]);
 
-      const competencia = await this.findById(result.insertId);
+      // Manejar tanto array como objeto de respuesta
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
+
+      const competencia = await this.findById(insertId);
       logger.info(`Competencia creada: ${competencia.nombre}`);
       
       return competencia;
@@ -44,11 +47,12 @@ class Competencia {
   // Buscar competencia por ID
   static async findById(id) {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT * FROM vf_competencias_catalogo WHERE id = ?
       `, [id]);
 
-      if (rows.length === 0) return null;
+      const rows = Array.isArray(result) ? result : [result];
+      if (!rows || rows.length === 0) return null;
       return new Competencia(rows[0]);
 
     } catch (error) {
@@ -60,11 +64,12 @@ class Competencia {
   // Buscar competencia por nombre
   static async findByName(nombre) {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT * FROM vf_competencias_catalogo WHERE nombre = ?
       `, [nombre]);
 
-      if (rows.length === 0) return null;
+      const rows = Array.isArray(result) ? result : [result];
+      if (!rows || rows.length === 0) return null;
       return new Competencia(rows[0]);
 
     } catch (error) {
@@ -103,12 +108,12 @@ class Competencia {
 
       if (certificacion_requerida !== undefined) {
         whereClause += ' AND certificacion_requerida = ?';
-        params.push(certificacion_requerida);
+        params.push(certificacion_requerida ? 1 : 0);
       }
 
       if (activo !== undefined) {
         whereClause += ' AND activo = ?';
-        params.push(activo);
+        params.push(activo ? 1 : 0);
       }
 
       if (search) {
@@ -116,20 +121,28 @@ class Competencia {
         params.push(`%${search}%`, `%${search}%`);
       }
 
-      // Query principal
+      // Query principal (construir LIMIT dinámicamente para evitar problemas)
       const query = `
-        SELECT *, COUNT(*) OVER() as total_count
+        SELECT *
         FROM vf_competencias_catalogo
         ${whereClause}
         ORDER BY categoria, nombre
         LIMIT ? OFFSET ?
       `;
+      
+      // Query para contar total
+      const countQuery = `
+        SELECT COUNT(*) as total_count
+        FROM vf_competencias_catalogo
+        ${whereClause}
+      `;
 
-      params.push(limit, offset);
-      const [rows] = await database.query(query, params);
+      // Ejecutar ambas queries con paginación
+      const rows = await database.query(query, [...params, parseInt(limit), parseInt(offset)]);
+      const countResult = await database.query(countQuery, params);
 
       const competencias = rows.map(row => new Competencia(row));
-      const totalCount = rows.length > 0 ? rows[0].total_count : 0;
+      const totalCount = countResult.length > 0 ? countResult[0].total_count : 0;
 
       return {
         competencias,
@@ -164,7 +177,7 @@ class Competencia {
       const params = [];
 
       allowedFields.forEach(field => {
-        if (updateData.hasOwnProperty(field)) {
+        if (Object.prototype.hasOwnProperty.call(updateData, field)) {
           setClause.push(`${field} = ?`);
           params.push(updateData[field]);
         }
@@ -217,13 +230,14 @@ class Competencia {
   // Obtener categorías disponibles
   static async getCategories() {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT DISTINCT categoria
         FROM vf_competencias_catalogo
         WHERE categoria IS NOT NULL AND activo = TRUE
         ORDER BY categoria
       `);
 
+      const rows = Array.isArray(result) ? result : [result];
       return rows.map(row => row.categoria);
 
     } catch (error) {
@@ -235,7 +249,7 @@ class Competencia {
   // Obtener técnicos que tienen esta competencia
   async getTecnicos() {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           tc.*,
           tp.id as tecnico_id,
@@ -247,6 +261,7 @@ class Competencia {
         ORDER BY u.nombre, u.apellido
       `, [this.id]);
 
+      const rows = Array.isArray(result) ? result : [result];
       return rows;
 
     } catch (error) {
@@ -258,7 +273,7 @@ class Competencia {
   // Estadísticas de competencias
   static async getStats() {
     try {
-      const [stats] = await database.query(`
+      const result = await database.query(`
         SELECT 
           cc.categoria,
           cc.nivel_requerido,
@@ -272,6 +287,7 @@ class Competencia {
         ORDER BY cc.categoria, cc.nivel_requerido
       `);
 
+      const stats = Array.isArray(result) ? result : [result];
       return stats;
 
     } catch (error) {
@@ -283,7 +299,7 @@ class Competencia {
   // Competencias más demandadas
   static async getMostDemanded(limit = 10) {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT 
           cc.*,
           COUNT(tc.id) as total_tecnicos,
@@ -296,6 +312,7 @@ class Competencia {
         LIMIT ?
       `, [limit]);
 
+      const rows = Array.isArray(result) ? result : [result];
       return rows.map(row => new Competencia(row));
 
     } catch (error) {
@@ -307,12 +324,13 @@ class Competencia {
   // Verificar si se puede eliminar la competencia
   async canDelete() {
     try {
-      const [rows] = await database.query(`
+      const result = await database.query(`
         SELECT COUNT(*) as count
         FROM vf_tecnicos_competencias
         WHERE competencia_id = ?
       `, [this.id]);
 
+      const rows = Array.isArray(result) ? result : [result];
       return rows[0].count === 0;
 
     } catch (error) {

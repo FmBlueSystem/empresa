@@ -9,11 +9,11 @@ const Analytics = () => {
   const location = useLocation();
 
   // Configuración de Google Analytics
-  const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+  const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-PLACEHOLDER_REPLACE_WITH_REAL_ID';
 
   useEffect(() => {
     // Solo ejecutar en producción o si GA_MEASUREMENT_ID está configurado
-    if (import.meta.env.PROD && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+    if (import.meta.env.PROD && GA_MEASUREMENT_ID !== 'G-PLACEHOLDER_REPLACE_WITH_REAL_ID') {
       // Cargar Google Analytics 4 dinámicamente
       const script = document.createElement('script');
       script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
@@ -22,7 +22,7 @@ const Analytics = () => {
 
       // Inicializar gtag
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
+      const gtag = function() {
         window.dataLayer.push(arguments);
       }
       window.gtag = gtag;

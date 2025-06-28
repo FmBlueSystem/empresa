@@ -25,10 +25,15 @@ class Usuario {
   // Métodos estáticos para consultas de base de datos
   static async findByEmail(email) {
     try {
-      const query = 'SELECT * FROM vf_usuarios WHERE email = ? AND estado != "eliminado"';
-      const [rows] = await database.query(query, [email]);
+      if (!email) {
+        logger.error('Email no proporcionado en findByEmail');
+        return null;
+      }
       
-      if (rows.length === 0) {
+      const query = 'SELECT * FROM vf_usuarios WHERE email = ? AND estado != "eliminado"';
+      const rows = await database.query(query, [email]);
+      
+      if (!rows || rows.length === 0) {
         return null;
       }
       
@@ -42,7 +47,7 @@ class Usuario {
   static async findById(id) {
     try {
       const query = 'SELECT * FROM vf_usuarios WHERE id = ? AND estado != "eliminado"';
-      const [rows] = await database.query(query, [id]);
+      const rows = await database.query(query, [id]);
       
       if (rows.length === 0) {
         return null;
@@ -57,24 +62,30 @@ class Usuario {
 
   static async findAll(filters = {}) {
     try {
-      let query = 'SELECT * FROM vf_usuarios WHERE estado != "eliminado"';
+      let query = 'SELECT * FROM vf_usuarios';
       const params = [];
+      const whereClauses = ['estado != "eliminado"'];
 
       // Aplicar filtros
       if (filters.rol) {
-        query += ' AND rol = ?';
+        whereClauses.push('rol = ?');
         params.push(filters.rol);
       }
 
       if (filters.estado) {
-        query += ' AND estado = ?';
+        whereClauses.push('estado = ?');
         params.push(filters.estado);
       }
 
       if (filters.search) {
-        query += ' AND (nombre LIKE ? OR apellido LIKE ? OR email LIKE ?)';
+        whereClauses.push('(nombre LIKE ? OR apellido LIKE ? OR email LIKE ?)');
         const searchTerm = `%${filters.search}%`;
         params.push(searchTerm, searchTerm, searchTerm);
+      }
+
+      // Añadir cláusulas WHERE si existen
+      if (whereClauses.length > 0) {
+        query += ` WHERE ${whereClauses.join(' AND ')}`;
       }
 
       // Ordenamiento
@@ -82,12 +93,12 @@ class Usuario {
 
       // Paginación
       if (filters.limit) {
-        query += ' LIMIT ?';
-        params.push(parseInt(filters.limit));
+        const limit = parseInt(filters.limit, 10);
+        query += ` LIMIT ${limit}`;
         
         if (filters.offset) {
-          query += ' OFFSET ?';
-          params.push(parseInt(filters.offset));
+          const offset = parseInt(filters.offset, 10);
+          query += ` OFFSET ${offset}`;
         }
       }
 
@@ -203,6 +214,15 @@ class Usuario {
 
   async verifyPassword(password) {
     try {
+      // Validar que tenemos tanto la contraseña como el hash
+      if (!password || !this.password_hash) {
+        logger.error('Error al verificar contraseña: password o password_hash undefined', {
+          hasPassword: !!password,
+          hasHash: !!this.password_hash
+        });
+        return false;
+      }
+      
       return await bcrypt.compare(password, this.password_hash);
     } catch (error) {
       logger.error('Error al verificar contraseña:', error);

@@ -211,7 +211,6 @@ export const ServiceWorkerLoader = () => {
     if ('serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('✅ Service Worker registrado:', registration);
           
           // Check for updates
           registration.addEventListener('updatefound', () => {
@@ -227,7 +226,6 @@ export const ServiceWorkerLoader = () => {
           });
         })
         .catch((error) => {
-          console.warn('Service Worker registration failed:', error);
         });
     }
   }, []);

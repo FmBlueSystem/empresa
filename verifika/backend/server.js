@@ -57,7 +57,10 @@ app.use(helmet({
 // Middleware general
 app.use(compression());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5174',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5174',
+    'http://localhost:5173'
+  ],
   credentials: true
 }));
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
@@ -151,7 +154,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// Iniciar servidor
-startServer();
+// Iniciar servidor solo si no está en entorno de test
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 module.exports = app;

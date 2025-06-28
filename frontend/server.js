@@ -17,7 +17,4 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`✅ BlueSystem.io Server running at:`);
-  console.log(`🌐 Local:   http://localhost:${port}/`);
-  console.log(`📱 Network: http://192.168.68.108:${port}/`);
 });

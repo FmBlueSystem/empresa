@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Users API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .user { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { color: red; padding: 10px; background: #ffe6e6; border-radius: 5px; }
+        .loading { color: blue; padding: 10px; background: #e6f3ff; border-radius: 5px; }
+        .success { color: green; padding: 10px; background: #e6ffe6; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Verifika Users API</h1>
+        
+        <div>
+            <button onclick="login()">1. Login</button>
+            <button onclick="fetchUsers()">2. Fetch Users</button>
+            <button onclick="clearToken()">3. Clear Token</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="users"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        function setStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        async function login() {
+            setStatus('Logging in...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@bluesystem.io',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('verifika_token', data.data.token);
+                    setStatus(`Login successful! Token saved. User: ${data.data.user.nombre}`, 'success');
+                } else {
+                    setStatus(`Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                setStatus(`Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function fetchUsers() {
+            const token = localStorage.getItem('verifika_token');
+            if (!token) {
+                setStatus('No token found. Please login first.', 'error');
+                return;
+            }
+            
+            setStatus('Fetching users...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/auth/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    setStatus(`Users fetched successfully! Count: ${data.data.users.length}`, 'success');
+                    displayUsers(data.data.users);
+                } else {
+                    setStatus(`Fetch failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                setStatus(`Fetch error: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayUsers(users) {
+            const usersDiv = document.getElementById('users');
+            usersDiv.innerHTML = '<h2>Users:</h2>' + 
+                users.map(user => 
+                    `<div class="user">
+                        <strong>${user.nombre} ${user.apellido}</strong><br>
+                        Email: ${user.email}<br>
+                        Rol: ${user.rol}<br>
+                        Estado: ${user.estado}
+                    </div>`
+                ).join('');
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('verifika_token');
+            setStatus('Token cleared', 'success');
+            document.getElementById('users').innerHTML = '';
+        }
+        
+        // Check token on load
+        window.onload = function() {
+            const token = localStorage.getItem('verifika_token');
+            if (token) {
+                setStatus('Token found in localStorage', 'success');
+            } else {
+                setStatus('No token found. Please login first.', 'error');
+            }
+        };
+    </script>
+</body>
+</html> 

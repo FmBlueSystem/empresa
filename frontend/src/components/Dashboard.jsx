@@ -25,7 +25,6 @@ function Dashboard({ user, apiBaseUrl }) {
       setUsers(usersResponse.data.users)
 
     } catch (error) {
-      console.error('Error loading dashboard data:', error)
       setError('Error cargando datos del dashboard')
     } finally {
       setLoading(false)
@@ -186,7 +185,7 @@ function Dashboard({ user, apiBaseUrl }) {
               </button>
               <button 
                 className="action-btn secondary"
-                onClick={() => console.log('System info:', systemInfo)}
+                onClick={() => {}}
               >
                 🔍 Log Sistema
               </button>
@@ -204,4 +203,4 @@ function Dashboard({ user, apiBaseUrl }) {
   )
 }
 
-export default Dashboard 
+export default Dashboard

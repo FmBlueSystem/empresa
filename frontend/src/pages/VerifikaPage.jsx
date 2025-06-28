@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
-import PageHeader from '../components/PageHeader';
+import VerifikaLogin from '../components/VerifikaLogin';
 
 /**
  * Página de presentación de Verifika - Sistema de validación de actividades técnicas
  */
 const VerifikaPage = () => {
+  const [showLogin, setShowLogin] = useState(false);
+
+  // Variantes de animación
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut'
+      }
+    }
+  };
+
   return (
     <>
       {/* SEO específico para Verifika */}
@@ -17,77 +44,152 @@ const VerifikaPage = () => {
         ogImage="/images/verifika-og.jpg"
       />
 
-      <div className="min-h-screen">
-        {/* Header de la página */}
-        <PageHeader
-          title="Verifika"
-          subtitle="Sistema Inteligente de Validación de Actividades Técnicas"
-          description="Revoluciona la gestión de tu equipo técnico con nuestro sistema completo de seguimiento, validación y reportes en tiempo real."
-          breadcrumbs={[
-            { label: 'Inicio', path: '/' },
-            { label: 'Verifika', path: '/verifika' }
-          ]}
-        />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        
+        {/* Hero Section Moderno */}
+        <section className="relative bg-gradient-to-br from-indigo-600 via-purple-700 to-blue-800 text-white overflow-hidden">
+          {/* Patrón de fondo */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-600 animate-pulse"></div>
+          </div>
+          
+          <div className="relative container-custom py-24 lg:py-32">
+            <motion.div 
+              className="text-center max-w-5xl mx-auto"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div 
+                className="inline-flex items-center gap-2 bg-blue-900/30 text-blue-100 px-4 py-2 rounded-full text-sm font-medium mb-6"
+                variants={itemVariants}
+              >
+                <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                Proyecto I+D en Desarrollo - Innovación BlueSystem
+              </motion.div>
+              
+              <motion.h1 
+                className="text-5xl lg:text-6xl font-bold mb-6"
+                variants={itemVariants}
+              >
+                <span className="bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                  Verifika
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-blue-100 to-white bg-clip-text text-transparent">
+                  El Futuro de la Gestión Técnica
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl lg:text-2xl text-blue-100 mb-8 leading-relaxed"
+                variants={itemVariants}
+              >
+                Nuestro proyecto de investigación y desarrollo para revolucionar la validación de actividades técnicas.
+                Mientras perfeccionamos esta innovación, seguimos entregando soluciones empresariales probadas.
+              </motion.p>
+              
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                variants={itemVariants}
+              >
+                <motion.button
+                  onClick={() => setShowLogin(true)}
+                  className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Acceder a Demo
+                </motion.button>
+                <Link 
+                  to="/contacto"
+                  className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300"
+                >
+                  Más Información
+                </Link>
+              </motion.div>
+            </motion.div>
+          </div>
+          
+          {/* Decorative wave */}
+          <div className="absolute bottom-0 left-0 right-0">
+            <svg className="w-full h-12 text-blue-50" fill="currentColor" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z"></path>
+            </svg>
+          </div>
+        </section>
 
         {/* Contenido principal */}
-        <div className="container-custom py-16">
-          
-          {/* Sección: Qué es Verifika */}
-          <section className="mb-20">
-            <div className="max-w-4xl mx-auto text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-green-50 text-green-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                FASE 2.2 Completada - Módulo de Técnicos Operativo
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-dark mb-6">
-                ¿Qué es Verifika?
-              </h2>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Verifika es nuestro sistema web completo para la gestión y validación de actividades técnicas diarias. 
-                Una solución integral que permite optimizar la productividad, asegurar la calidad del trabajo y 
-                mantener una comunicación transparente entre técnicos, clientes y administradores.
-              </p>
-            </div>
-
-            {/* Características principales */}
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="text-center p-6 bg-white rounded-xl shadow-soft border border-gray-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-gray-dark mb-3">Para Técnicos</h3>
-                <p className="text-gray-600">
-                  Registra actividades diarias con detalles, horarios, archivos adjuntos y auto-cálculo de horas trabajadas.
+        <main className="relative py-20">
+          <div className="container-custom">
+            
+            {/* Sección: Qué es Verifika */}
+            <motion.section 
+              className="mb-20"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <motion.div className="max-w-4xl mx-auto text-center mb-12" variants={itemVariants}>
+                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+                  ¿Qué es <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Verifika</span>?
+                </h2>
+                <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+                  Nuestro proyecto de investigación y desarrollo para crear el futuro de la gestión técnica. 
+                  Mientras perfeccionamos esta innovación, BlueSystem continúa entregando soluciones empresariales 
+                  probadas en SAP, automatización IA y desarrollo web.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="text-center p-6 bg-white rounded-xl shadow-soft border border-gray-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+              {/* Características principales */}
+              <motion.div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto" variants={itemVariants}>
+                <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-blue-200 transition-all duration-300 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">Para Técnicos</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Registra actividades diarias con detalles, horarios, archivos adjuntos y auto-cálculo de horas trabajadas.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-dark mb-3">Para Clientes</h3>
-                <p className="text-gray-600">
-                  Valida o rechaza actividades con comentarios, mantén control de calidad y seguimiento en tiempo real.
-                </p>
-              </div>
 
-              <div className="text-center p-6 bg-white rounded-xl shadow-soft border border-gray-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
+                <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-green-200 transition-all duration-300 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-green-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-green-600 transition-colors">Para Clientes</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Valida o rechaza actividades con comentarios, mantén control de calidad y seguimiento en tiempo real.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-dark mb-3">Para Administradores</h3>
-                <p className="text-gray-600">
-                  Gestiona usuarios, asignaciones, métricas de productividad y genera reportes ejecutivos completos.
-                </p>
-              </div>
-            </div>
-          </section>
+
+                <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-purple-200 transition-all duration-300 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">Para Administradores</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Gestiona usuarios, asignaciones, métricas de productividad y genera reportes ejecutivos completos.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.section>
 
           {/* Sección: Funcionalidades */}
           <section className="mb-20">
@@ -196,7 +298,7 @@ const VerifikaPage = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-dark mb-2">Seguridad Avanzada</h3>
-                    <p className="text-gray-600">Autenticación JWT, roles de usuario y auditoría completa de acciones.</p>
+                    <p className="text-gray-600">Sistema de autenticación seguro, roles de usuario y auditoría completa de acciones.</p>
                   </div>
                 </div>
               </div>
@@ -212,7 +314,7 @@ const VerifikaPage = () => {
                     Estado del Desarrollo
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Proyecto Dart AI ID: slF0dOywYY8R
+                    Sistema de validación de actividades técnicas
                   </p>
                 </div>
 
@@ -240,43 +342,43 @@ const VerifikaPage = () => {
                     <div className="grid md:grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Servidor Express (Puerto 3001)</span>
+                        <span>Servidor web robusto</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Base de Datos MySQL (12 tablas)</span>
+                        <span>Base de datos estructurada</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Autenticación JWT</span>
+                        <span>Autenticación segura</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Roles (Admin/Técnico/Cliente/Validador)</span>
+                        <span>Sistema de roles y permisos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>CRUD Técnicos (19 endpoints)</span>
+                        <span>Gestión de usuarios</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Gestión Competencias (10 endpoints)</span>
+                        <span>Sistema de competencias</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Upload Documentos (Multer)</span>
+                        <span>Carga de documentos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Validaciones Joi Completas</span>
+                        <span>Validación de datos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Redis para Sesiones</span>
+                        <span>Gestión de sesiones</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span>Logging con Winston</span>
+                        <span>Sistema de logs</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -332,81 +434,96 @@ const VerifikaPage = () => {
 
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <div className="bg-white rounded-xl p-8 shadow-soft border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-dark mb-4">Arquitectura Híbrida</h3>
+                <h3 className="text-xl font-bold text-gray-dark mb-4">Características Principales</h3>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Frontend independiente integrado en Nginx existente
+                    Interfaz intuitiva y fácil de usar
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Microservicio backend conectado a infraestructura actual
+                    Integración perfecta con sistemas existentes
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Esquemas adicionales en MySQL existente
+                    Base de datos segura y confiable
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Sistema de autenticación unificado con JWT
+                    Sistema de autenticación seguro
                   </li>
                 </ul>
               </div>
 
               <div className="bg-white rounded-xl p-8 shadow-soft border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-dark mb-4">URLs de Acceso</h3>
+                <h3 className="text-xl font-bold text-gray-dark mb-4">Beneficios Clave</h3>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Frontend Dev:</strong> http://localhost:5174
+                    <strong>Automatización:</strong> Reduce tiempo de validación manual
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>API Backend:</strong> http://localhost:3001/api
+                    <strong>Transparencia:</strong> Seguimiento en tiempo real de actividades
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Health Check:</strong> http://localhost:3001/health
+                    <strong>Eficiencia:</strong> Optimiza procesos de validación
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <strong>Producción:</strong> http://localhost/verifika (Pendiente)
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <strong>Trazabilidad:</strong> Historial completo de actividades
                   </li>
                 </ul>
               </div>
             </div>
           </section>
 
-          {/* Call to Action */}
-          <section className="text-center">
-            <div className="max-w-4xl mx-auto bg-gradient-primary rounded-2xl p-8 md:p-12 text-white">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                ¿Listo para Revolucionar tu Gestión Técnica?
-              </h2>
-              <p className="text-xl mb-8 text-blue-100">
-                Verifika estará disponible próximamente. Mantente informado sobre nuestro progreso y 
-                sé el primero en acceder cuando esté listo.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link 
-                  to="/contacto" 
-                  className="btn-secondary bg-white text-blue-600 hover:bg-gray-50"
-                >
-                  Solicitar Demo
-                </Link>
-                <a 
-                  href="https://github.com/BlueSystem/verifika" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn-secondary border-white text-white hover:bg-white hover:text-blue-600"
-                >
-                  Ver en GitHub
-                </a>
-              </div>
-            </div>
-          </section>
-        </div>
+            {/* Call to Action modernizado */}
+            <motion.section 
+              className="text-center"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <motion.div 
+                className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border border-indigo-100"
+                variants={itemVariants}
+              >
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  El Futuro de la <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Gestión Técnica</span>
+                </h2>
+                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                  Verifika representa nuestra inversión en I+D para revolucionar la industria. 
+                  Mientras desarrollamos esta innovación, seguimos entregando valor con nuestras soluciones probadas.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.button
+                    onClick={() => setShowLogin(true)}
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Acceder a Demo
+                  </motion.button>
+                  <Link 
+                    to="/contacto" 
+                    className="border-2 border-indigo-600 text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-indigo-600 hover:text-white transition-all duration-300"
+                  >
+                    Solicitar Información
+                  </Link>
+                </div>
+              </motion.div>
+            </motion.section>
+          </div>
+        </main>
       </div>
+
+      {/* Modal de Login */}
+      {showLogin && (
+        <VerifikaLogin onClose={() => setShowLogin(false)} />
+      )}
     </>
   );
 };

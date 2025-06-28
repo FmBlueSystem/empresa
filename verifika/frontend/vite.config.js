@@ -8,7 +8,7 @@ export default defineConfig({
   
   // Configuración del servidor de desarrollo
   server: {
-    port: 5174,
+    port: 5173,
     host: true,
     proxy: {
       // Proxy para API calls

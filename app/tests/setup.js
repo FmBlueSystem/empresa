@@ -42,4 +42,4 @@ process.env.API_KEY = 'test-api-key';
 process.env.SESSION_SECRET = 'test-session-secret';
 
 // Global test timeout
-jest.setTimeout(10000); 
+jest.setTimeout(10000);

@@ -1,22 +1,27 @@
-# Multi-stage Dockerfile for Node.js Backend
+# Stage 1: Base image with non-root user
+FROM node:18-alpine AS base
 
-# Development stage
-FROM node:18-alpine AS development
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy package files
-COPY package*.json ./
+# Development stage
+FROM base AS development
 
-# Install all dependencies (including dev dependencies)
+# Copy package files
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Install all dependencies
 RUN npm ci
 
 # Copy source code
-COPY . .
+COPY --chown=nodejs:nodejs . .
 
 # Create logs directory
-RUN mkdir -p logs
+RUN mkdir -p logs && chown nodejs:nodejs logs
 
 # Expose port
 EXPOSE 3000
@@ -24,42 +29,30 @@ EXPOSE 3000
 # Start in development mode with nodemon
 CMD ["npm", "run", "dev"]
 
-# Stage 1: Build stage
-FROM node:18-alpine AS builder
-
-# Set working directory
-WORKDIR /app
+# Build stage
+FROM base AS builder
 
 # Copy package files
-COPY package*.json ./
+COPY --chown=nodejs:nodejs package*.json ./
 
-# Install dependencies (including dev dependencies for build)
-RUN npm ci --only=production && npm cache clean --force
+# Install production dependencies
+RUN npm ci --only=production
 
 # Copy source code
-COPY . .
+COPY --chown=nodejs:nodejs . .
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+# Production stage
+FROM base AS production
 
-# Stage 2: Production stage
-FROM node:18-alpine AS production
-
-# Install security updates
+# Install security updates and dumb-init
 RUN apk update && apk upgrade && apk add --no-cache dumb-init
 
 # Set working directory
-WORKDIR /app
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+WORKDIR /usr/src/app
 
 # Copy built application from builder stage
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
-COPY --from=builder --chown=nodejs:nodejs /app .
+COPY --from=builder --chown=nodejs:nodejs /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /usr/src/app .
 
 # Create logs directory
 RUN mkdir -p logs && chown nodejs:nodejs logs
@@ -78,4 +71,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-CMD ["node", "server.js"] 
+CMD ["node", "server.js"]
+ 

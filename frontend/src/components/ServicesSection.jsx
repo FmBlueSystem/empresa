@@ -46,14 +46,26 @@ const ServicesSection = () => {
     },
     {
       id: 4,
-      title: "Web Apps: Arsenales Digitales",
-      description: "No desarrollamos sitios web. Forjamos armas digitales que aniquilan la competencia desde el primer clic.",
+      title: "Software Integral: Omnipresencia Digital",
+      description: "No desarrollamos apps. Conquistamos ecosistemas completos: web, móvil, escritorio y cloud en una sola ofensiva.",
       icon: "web",
       link: "/servicios/desarrollo-web",
       features: [
-        "React weaponizado con Node.js",
-        "APIs que hablan todos los idiomas",
+        "Multiplataforma weaponizada",
+        "Nativo + Cross-platform dominante",
         "Cloud-native invencible"
+      ]
+    },
+    {
+      id: 5,
+      title: "BlueConnect: La Red Suprema",
+      description: "Mientras otros conectan cables, nosotros tejemos ecosistemas digitales inteligentes que anticipan y responden.",
+      icon: "network",
+      link: "/blueconnect",
+      features: [
+        "Infraestructura que evoluciona sola",
+        "Seguridad que nunca duerme",
+        "IoT que piensa antes de actuar"
       ]
     }
   ];
@@ -67,22 +79,32 @@ const ServicesSection = () => {
             Nuestro <span className="text-gradient">Arsenal</span> de Disrupción
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Cada "servicio" es un <strong>catalizador de revolución</strong>. No vendemos software, 
+            Cada &quot;servicio&quot; es un <strong>catalizador de revolución</strong>. No vendemos software, 
             fabricamos ventajas competitivas que convierten a nuestros clientes en depredadores de mercado.
           </p>
         </div>
 
-        {/* Grid de servicios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {services.map((service, index) => (
-            <div 
-              key={service.id} 
-              className="animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <ServiceCard {...service} />
+        {/* Grid de servicios - Layout adaptativo para 5 servicios */}
+        <div className="mb-12">
+          {/* Primera fila: 4 servicios principales */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            {services.slice(0, 4).map((service, index) => (
+              <div 
+                key={service.id} 
+                className="animate-slide-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <ServiceCard {...service} />
+              </div>
+            ))}
+          </div>
+          
+          {/* Segunda fila: BlueConnect centrado */}
+          <div className="flex justify-center">
+            <div className="w-full max-w-sm animate-slide-up" style={{ animationDelay: '0.4s' }}>
+              <ServiceCard {...services[4]} />
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Sección de valor agregado */}
@@ -132,23 +154,54 @@ const ServicesSection = () => {
               </div>
             </div>
 
-            {/* Estadísticas */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center p-6 bg-blue-50 rounded-xl">
-                <div className="text-3xl font-bold text-blue-primary mb-2">300%+</div>
-                <div className="text-gray-600 font-medium">ROI Promedio</div>
+            {/* Beneficios clave */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 bg-blue-50 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-primary rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h4 className="font-bold text-gray-dark">ROI Comprobable</h4>
+                </div>
+                <p className="text-gray-600 text-sm">Retorno de inversión medible y documentado en cada proyecto</p>
               </div>
-              <div className="text-center p-6 bg-green-50 rounded-xl">
-                <div className="text-3xl font-bold text-green-600 mb-2">90</div>
-                <div className="text-gray-600 font-medium">Días Promedio Implementación</div>
+              
+              <div className="p-6 bg-green-50 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h4 className="font-bold text-gray-dark">Entrega Predecible</h4>
+                </div>
+                <p className="text-gray-600 text-sm">Metodología probada con cronogramas realistas y transparentes</p>
               </div>
-              <div className="text-center p-6 bg-purple-50 rounded-xl">
-                <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
-                <div className="text-gray-600 font-medium">Proyectos Fallidos</div>
+              
+              <div className="p-6 bg-purple-50 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-bold text-gray-dark">Calidad Consistente</h4>
+                </div>
+                <p className="text-gray-600 text-sm">Estándares de calidad mantenidos en todos nuestros proyectos</p>
               </div>
-              <div className="text-center p-6 bg-orange-50 rounded-xl">
-                <div className="text-3xl font-bold text-orange-600 mb-2">12x</div>
-                <div className="text-gray-600 font-medium">Velocidad vs Competencia</div>
+              
+              <div className="p-6 bg-orange-50 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h4 className="font-bold text-gray-dark">Mejora Continua</h4>
+                </div>
+                <p className="text-gray-600 text-sm">Optimización constante de procesos y resultados</p>
               </div>
             </div>
           </div>

@@ -13,12 +13,12 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=3000
-      - DB_HOST=mysql
+      - DB_HOST=db
       - DB_PORT=3306
       - DB_NAME=${DB_NAME:-bluesystem}
       - DB_USER=${DB_USER:-root}
       - DB_PASSWORD=${DB_PASSWORD}
-      - REDIS_HOST=redis
+      - REDIS_HOST=cache
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
@@ -30,8 +30,8 @@ services:
       - ./verifika/backend/uploads:/app/uploads
       - ./app/logs:/app/logs
     depends_on:
-      - mysql
-      - redis
+      - db
+      - cache
     networks:
       - bluesystem_network
     restart: unless-stopped

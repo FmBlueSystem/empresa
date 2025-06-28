@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
+        .status { padding: 10px; margin: 10px; border-radius: 5px; }
+        .loading { background: #e6f3ff; color: blue; }
+        .success { background: #e6ffe6; color: green; }
+        .error { background: #ffe6e6; color: red; }
+    </style>
+</head>
+<body>
+    <h1>Auto Login & Redirect Test</h1>
+    <div id="status" class="status loading">Iniciando proceso de login...</div>
+    
+    <script>
+        async function autoLogin() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = 'Haciendo login...';
+                statusDiv.className = 'status loading';
+                
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@bluesystem.io',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('verifika_token', data.data.token);
+                    statusDiv.innerHTML = 'Login exitoso! Redirigiendo...';
+                    statusDiv.className = 'status success';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/verifika/users';
+                    }, 1000);
+                } else {
+                    statusDiv.innerHTML = `Error en login: ${data.message}`;
+                    statusDiv.className = 'status error';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `Error de conexión: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+        
+        // Ejecutar automáticamente al cargar
+        autoLogin();
+    </script>
+</body>
+</html> 

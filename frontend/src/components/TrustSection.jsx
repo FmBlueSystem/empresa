@@ -105,7 +105,7 @@ const TrustSection = () => {
 
                 {/* Texto del testimonio */}
                 <blockquote className="text-gray-600 mb-4 italic leading-relaxed">
-                  "{transformation.text}"
+                  &quot;{transformation.text}&quot;
                 </blockquote>
                 
                 {/* Impacto medible */}
@@ -129,23 +129,36 @@ const TrustSection = () => {
           </div>
         </div>
 
-        {/* Estadísticas de confianza */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-          <div className="animate-fade-in">
-            <div className="text-4xl font-bold text-blue-primary mb-2">12</div>
-            <div className="text-gray-600 font-medium">Industrias Dominadas</div>
+        {/* Valores de confianza */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center p-6 bg-blue-50 rounded-xl animate-fade-in">
+            <div className="w-16 h-16 bg-blue-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h4 className="text-xl font-bold text-gray-dark mb-2">Experiencia Comprobada</h4>
+            <p className="text-gray-600">Múltiples sectores atendidos con metodología probada</p>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="text-4xl font-bold text-green-600 mb-2">$47M</div>
-            <div className="text-gray-600 font-medium">Ahorros Generados</div>
+          
+          <div className="text-center p-6 bg-green-50 rounded-xl animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h4 className="text-xl font-bold text-gray-dark mb-2">Resultados Medibles</h4>
+            <p className="text-gray-600">Impacto real documentado caso por caso</p>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="text-4xl font-bold text-purple-600 mb-2">89</div>
-            <div className="text-gray-600 font-medium">Días Promedio Transformación</div>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="text-4xl font-bold text-orange-600 mb-2">∞</div>
-            <div className="text-gray-600 font-medium">Potencial Desbloqueado</div>
+          
+          <div className="text-center p-6 bg-purple-50 rounded-xl animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h4 className="text-xl font-bold text-gray-dark mb-2">Clientes Satisfechos</h4>
+            <p className="text-gray-600">Relaciones a largo plazo basadas en confianza</p>
           </div>
         </div>
       </div>
