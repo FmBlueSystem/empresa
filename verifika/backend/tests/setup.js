@@ -1,4 +1,7 @@
 // setup.js - Configuración global para tests de Jest
+jest.mock('../src/config/database');
+jest.mock('../src/config/redis');
+
 const database = require('../src/config/database');
 
 // Configuración para Jest

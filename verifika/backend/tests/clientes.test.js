@@ -1,4 +1,7 @@
 // clientes.test.js - Tests unitarios para módulo de clientes
+jest.mock('../src/config/database');
+jest.mock('../src/config/redis');
+
 const request = require('supertest');
 const app = require('../server');
 const Cliente = require('../src/models/Cliente');

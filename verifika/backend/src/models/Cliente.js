@@ -173,8 +173,8 @@ class Cliente {
       // Paginación
       const limit = Math.min(parseInt(filtros.limit) || 20, 100);
       const offset = Math.max(parseInt(filtros.offset) || 0, 0);
-      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
-      query += ` ${limitClause}`;
+      query += ' LIMIT ? OFFSET ?';
+      valores.push(limit, offset);
 
       const rows = await database.query(query, valores);
 
@@ -311,8 +311,8 @@ class Cliente {
       if (filtros.limit) {
         const limit = Math.min(parseInt(filtros.limit), 50);
         const offset = Math.max(parseInt(filtros.offset) || 0, 0);
-        const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
-        query += ` ${limitClause}`;
+        query += ' LIMIT ? OFFSET ?';
+        valores.push(limit, offset);
       }
 
       const rows = await database.query(query, valores);

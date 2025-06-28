@@ -233,8 +233,8 @@ class Actividad {
     if (paginacion.limit) {
       const limit = parseInt(paginacion.limit);
       const offset = parseInt(paginacion.offset) || 0;
-      const limitClause = `LIMIT ${limit} OFFSET ${offset}`;
-      query += ` ${limitClause}`;
+      query += ' LIMIT ? OFFSET ?';
+      valores.push(limit, offset);
     }
 
     const rows = await database.query(query, valores);
@@ -734,7 +734,7 @@ class Actividad {
    * Validar que la asignación existe y está activa
    */
   static async validateAsignacion(asignacionId, connection = null) {
-    const conn = connection || db;
+    const conn = connection || database;
     
     const query = `
       SELECT id, estado, tecnico_id, cliente_id 
@@ -755,7 +755,7 @@ class Actividad {
    * Validar que el técnico pertenece a la asignación
    */
   static async validateTecnicoEnAsignacion(asignacionId, tecnicoId, connection = null) {
-    const conn = connection || db;
+    const conn = connection || database;
     
     const query = `
       SELECT id FROM vf_asignaciones 
@@ -775,7 +775,7 @@ class Actividad {
    * Validar que no hay otro cronómetro activo para el técnico
    */
   static async validateCronometroUnico(tecnicoId, excluirActividadId = null, connection = null) {
-    const conn = connection || db;
+    const conn = connection || database;
     
     let query = `
       SELECT id FROM vf_actividades 

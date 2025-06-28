@@ -1,3 +1,6 @@
+jest.mock('../src/config/database');
+jest.mock('../src/config/redis');
+
 const request = require('supertest');
 const app = require('../server');
 const database = require('../src/config/database');
