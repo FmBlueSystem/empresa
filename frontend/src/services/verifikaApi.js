@@ -23,8 +23,9 @@ class VerifikaAPI {
       'Content-Type': 'application/json',
     };
     
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = localStorage.getItem('verifika_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
     
     return headers;

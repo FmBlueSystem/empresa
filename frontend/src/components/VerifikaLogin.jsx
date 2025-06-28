@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Componente de login para integración con Verifika
  * Se conecta al backend de Verifika en puerto 3001
  */
 const VerifikaLogin = ({ onClose }) => {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -50,9 +52,8 @@ const VerifikaLogin = ({ onClose }) => {
         localStorage.setItem('verifika_token', data.data.token);
         localStorage.setItem('verifika_user', JSON.stringify(data.data.user));
         
-        // Redirigir a Verifika o mostrar mensaje de éxito
-        alert(`¡Bienvenido ${data.data.user.nombre}! Acceso a Verifika autorizado.`);
-        onClose();
+        // Redirigir al dashboard de Verifika
+        navigate('/verifika/dashboard');
       } else {
         setError(data.message || 'Error al iniciar sesión');
       }

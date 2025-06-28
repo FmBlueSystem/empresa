@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import SEO from '../../components/SEO'
 import verifikaAPI from '../../services/verifikaApi'
 
@@ -231,7 +231,7 @@ const VerifikaDashboard = () => {
                 <div className="space-y-3">
                   {user?.rol === 'admin' && (
                     <>
-                      <button className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
+                      <Link to="/verifika/users" className="block w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
                         <div className="flex items-center gap-3">
                           <span className="text-xl">👥</span>
                           <div>
@@ -239,7 +239,7 @@ const VerifikaDashboard = () => {
                             <p className="text-sm text-gray-600">Crear, editar y administrar usuarios del sistema</p>
                           </div>
                         </div>
-                      </button>
+                      </Link>
                       <button className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
                         <div className="flex items-center gap-3">
                           <span className="text-xl">🏢</span>

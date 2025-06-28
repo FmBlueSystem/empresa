@@ -22,6 +22,7 @@ import BlueConnectPage from './pages/BlueConnectPage'
 import VerifikaPage from './pages/VerifikaPage'
 import LoginPage from './pages/LoginPage'
 import VerifikaDashboard from './pages/verifika/VerifikaDashboard'
+import UserManagementPage from './pages/verifika/UserManagementPage'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/blueconnect" element={<BlueConnectPage />} />
             <Route path="/verifika" element={<VerifikaPage />} />
             <Route path="/verifika/dashboard" element={<VerifikaDashboard />} />
+            <Route path="/verifika/users" element={<UserManagementPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/contacto" element={<ContactPage />} />
             <Route path="/sobre-nosotros" element={<AboutPage />} />

@@ -65,38 +65,27 @@ class Validacion {
     try {
       await connection.beginTransaction();
 
-      // Validar que la actividad existe y está completada
+      // Validar que la actividad existe
       await this.validateActividad(validacionData.actividad_id, connection);
-      
-      // Validar que el validador tiene permisos sobre el cliente
-      await this.validateValidadorPermiso(validacionData.validador_id, validacionData.cliente_id, connection);
-      
-      // Calcular fecha límite basada en tipo de actividad y complejidad
-      const fechaLimite = this.calculateFechaLimite(validacionData.dias_plazo || 3);
 
       const query = `
         INSERT INTO vf_validaciones (
-          actividad_id, validador_id, tecnico_id, cliente_id, estado,
-          fecha_limite, dias_plazo, comentario_principal, aspectos_positivos,
-          aspectos_mejora, requerimientos_cambios, impacto_negocio,
-          complejidad_revision
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          actividad_id, validador_id, estado, comentarios,
+          horas_aprobadas, monto_aprobado, archivos_validacion,
+          requiere_segunda_validacion, validacion_padre_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const values = [
         validacionData.actividad_id,
         validacionData.validador_id,
-        validacionData.tecnico_id,
-        validacionData.cliente_id,
         validacionData.estado || 'pendiente_revision',
-        fechaLimite,
-        validacionData.dias_plazo || 3,
-        validacionData.comentario_principal || null,
-        JSON.stringify(validacionData.aspectos_positivos || []),
-        JSON.stringify(validacionData.aspectos_mejora || []),
-        JSON.stringify(validacionData.requerimientos_cambios || []),
-        validacionData.impacto_negocio || null,
-        validacionData.complejidad_revision || 'moderada'
+        validacionData.comentarios || null,
+        validacionData.horas_aprobadas || null,
+        validacionData.monto_aprobado || null,
+        JSON.stringify(validacionData.archivos_validacion || []),
+        validacionData.requiere_segunda_validacion ? 1 : 0,
+        validacionData.validacion_padre_id || null
       ];
 
       const result = await connection.query(query, values);
@@ -107,16 +96,6 @@ class Validacion {
       // Obtener la validación creada
       const nuevaValidacion = await this.findById(insertId);
       
-      // Crear notificación automática
-      await this.createNotificacion(
-        nuevaValidacion.validador_id,
-        'validacion',
-        'Nueva actividad para validar',
-        `Tienes una nueva actividad "${nuevaValidacion.actividad_titulo}" para validar`,
-        'actividad',
-        nuevaValidacion.actividad_id
-      );
-
       return nuevaValidacion;
 
     } catch (error) {
@@ -279,12 +258,8 @@ class Validacion {
 
       // Construir query de actualización dinámico
       const camposActualizables = [
-        'estado', 'estado_anterior', 'puntuacion_general', 'criterios_calidad',
-        'fecha_limite', 'fecha_inicio_revision', 'fecha_completada', 'dias_plazo',
-        'escalada_automaticamente', 'supervisor_escalado_id', 'comentario_principal',
-        'aspectos_positivos', 'aspectos_mejora', 'requerimientos_cambios',
-        'impacto_negocio', 'tiempo_revision_horas', 'complejidad_revision',
-        'satisfaccion_cliente'
+        'estado', 'comentarios', 'horas_aprobadas', 'monto_aprobado',
+        'archivos_validacion', 'requiere_segunda_validacion', 'validacion_padre_id'
       ];
 
       const updates = [];
@@ -295,9 +270,9 @@ class Validacion {
           updates.push(`${campo} = ?`);
           
           // Serializar JSON si es necesario
-          if (['criterios_calidad', 'aspectos_positivos', 'aspectos_mejora', 'requerimientos_cambios'].includes(campo)) {
+          if (campo === 'archivos_validacion') {
             valores.push(JSON.stringify(datosActualizacion[campo]));
-          } else if (campo === 'escalada_automaticamente') {
+          } else if (campo === 'requiere_segunda_validacion') {
             valores.push(datosActualizacion[campo] ? 1 : 0);
           } else {
             valores.push(datosActualizacion[campo]);
@@ -309,7 +284,6 @@ class Validacion {
         throw new Error('No hay campos para actualizar');
       }
 
-      updates.push('actualizado_en = CURRENT_TIMESTAMP');
       valores.push(this.id);
 
       const query = `UPDATE vf_validaciones SET ${updates.join(', ')} WHERE id = ?`;
@@ -343,37 +317,19 @@ class Validacion {
     try {
       await connection.beginTransaction();
 
-      // Calcular tiempo de revisión
-      const tiempoRevision = this.calculateTiempoRevision();
-
       const updates = {
-        estado_anterior: this.estado,
-        estado: 'validada',
-        fecha_completada: new Date(),
-        tiempo_revision_horas: tiempoRevision,
-        puntuacion_general: datosValidacion.puntuacion_general,
-        criterios_calidad: datosValidacion.criterios_calidad || {},
-        comentario_principal: datosValidacion.comentario_principal,
-        aspectos_positivos: datosValidacion.aspectos_positivos || [],
-        satisfaccion_cliente: datosValidacion.satisfaccion_cliente
+        estado: 'aprobada',
+        comentarios: datosValidacion.comentarios,
+        horas_aprobadas: datosValidacion.horas_aprobadas,
+        monto_aprobado: datosValidacion.monto_aprobado
       };
 
       await this.update(updates);
 
       // Actualizar estado de la actividad
       await connection.query(
-        'UPDATE vf_actividades SET estado = ?, validado_por = ?, fecha_validacion = ?, puntuacion_calidad = ? WHERE id = ?',
-        ['validada', validadorId, new Date(), datosValidacion.puntuacion_general, this.actividad_id]
-      );
-
-      // Crear notificación para el técnico
-      await this.createNotificacion(
-        this.tecnico_id,
-        'aprobacion',
-        'Actividad validada',
-        `Tu actividad "${this.actividad_titulo}" ha sido aprobada`,
-        'actividad',
-        this.actividad_id
+        'UPDATE vf_actividades SET estado = ? WHERE id = ?',
+        ['validada', this.actividad_id]
       );
 
       await connection.commit();
@@ -396,36 +352,18 @@ class Validacion {
     try {
       await connection.beginTransaction();
 
-      const tiempoRevision = this.calculateTiempoRevision();
-
       const updates = {
-        estado_anterior: this.estado,
         estado: 'rechazada',
-        fecha_completada: new Date(),
-        tiempo_revision_horas: tiempoRevision,
-        comentario_principal: datosRechazo.comentario_principal,
-        aspectos_mejora: datosRechazo.aspectos_mejora || [],
-        requerimientos_cambios: datosRechazo.requerimientos_cambios || [],
-        impacto_negocio: datosRechazo.impacto_negocio || 'medio',
-        satisfaccion_cliente: datosRechazo.satisfaccion_cliente
+        comentarios: datosRechazo.comentarios,
+        horas_aprobadas: 0
       };
 
       await this.update(updates);
 
       // Actualizar estado de la actividad
       await connection.query(
-        'UPDATE vf_actividades SET estado = ?, observaciones_validacion = ? WHERE id = ?',
-        ['rechazada', datosRechazo.comentario_principal, this.actividad_id]
-      );
-
-      // Crear notificación para el técnico
-      await this.createNotificacion(
-        this.tecnico_id,
-        'rechazo',
-        'Actividad rechazada',
-        `Tu actividad "${this.actividad_titulo}" necesita correcciones`,
-        'actividad',
-        this.actividad_id
+        'UPDATE vf_actividades SET estado = ? WHERE id = ?',
+        ['rechazada', this.actividad_id]
       );
 
       await connection.commit();
