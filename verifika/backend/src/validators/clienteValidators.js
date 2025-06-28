@@ -59,7 +59,7 @@ const createClienteSchema = Joi.object({
     }),
 
   telefono: Joi.string()
-    .pattern(/^[\d\s\-\+\(\)]+$/)
+    .pattern(/^[\d\s\-+()]+$/)
     .min(8)
     .max(20)
     .required()
@@ -71,7 +71,7 @@ const createClienteSchema = Joi.object({
     }),
 
   telefono_secundario: Joi.string()
-    .pattern(/^[\d\s\-\+\(\)]+$/)
+    .pattern(/^[\d\s\-+()]+$/)
     .min(8)
     .max(20)
     .optional()
@@ -188,7 +188,7 @@ const createClienteSchema = Joi.object({
     }),
 
   telefono_contacto: Joi.string()
-    .pattern(/^[\d\s\-\+\(\)]+$/)
+    .pattern(/^[\d\s\-+()]+$/)
     .min(8)
     .max(20)
     .optional()

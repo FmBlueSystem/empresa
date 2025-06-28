@@ -206,7 +206,7 @@ class Comentario {
       const valores = [];
 
       for (const campo of camposActualizables) {
-        if (datosActualizacion.hasOwnProperty(campo)) {
+        if (Object.prototype.hasOwnProperty.call(datosActualizacion, campo)) {
           updates.push(`${campo} = ?`);
           
           if (campo === 'adjuntos') {

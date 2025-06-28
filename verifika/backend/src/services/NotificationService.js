@@ -1,6 +1,7 @@
 const Notificacion = require('../models/Notificacion');
 const EmailService = require('./EmailService');
 const logger = require('../config/logger');
+const db = require('../config/database');
 
 class NotificationService {
   constructor() {

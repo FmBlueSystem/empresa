@@ -20,7 +20,7 @@ const createTecnicoSchema = Joi.object({
       'string.max': 'El apellido no puede exceder 100 caracteres',
       'any.required': 'El apellido es obligatorio'
     }),
-    telefono: Joi.string().pattern(/^[+]?[\d\s\-\(\)]{8,20}$/).optional().messages({
+    telefono: Joi.string().pattern(/^[+]?[\d\s\-()]{8,20}$/).optional().messages({
       'string.pattern.base': 'El teléfono debe tener un formato válido'
     }),
     password: Joi.string().min(6).optional().messages({

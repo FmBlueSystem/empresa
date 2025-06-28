@@ -105,7 +105,7 @@ class Database {
   // Métodos específicos para Verifika
   async healthCheck() {
     try {
-      const [rows] = await this.pool.execute('SELECT 1 as health_check');
+      await this.pool.execute('SELECT 1 as health_check');
       return {
         status: 'healthy',
         message: 'MySQL connection OK',

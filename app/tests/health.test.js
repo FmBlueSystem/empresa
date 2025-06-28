@@ -106,7 +106,7 @@ describe('Health Check Endpoints', () => {
       expect([200, 500]).toContain(response.status);
 
       if (response.status === 200) {
-        expect(response.body).toHaveProperty('message', 'API funcionando correctamente');
+        expect(response.body).toHaveProperty('message', 'Test endpoint working correctly');
         expect(response.body).toHaveProperty('timestamp');
         expect(response.body).toHaveProperty('cached');
       }

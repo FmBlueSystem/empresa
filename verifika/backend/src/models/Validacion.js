@@ -293,7 +293,7 @@ class Validacion {
       const valores = [];
 
       for (const campo of camposActualizables) {
-        if (datosActualizacion.hasOwnProperty(campo)) {
+        if (Object.prototype.hasOwnProperty.call(datosActualizacion, campo)) {
           updates.push(`${campo} = ?`);
           
           // Serializar JSON si es necesario
@@ -520,7 +520,7 @@ class Validacion {
       estado: ['pendiente_revision', 'en_revision']
     });
 
-    const escaladasCount = 0;
+    let escaladasCount = 0;
 
     for (const validacion of validacionesVencidas) {
       if (!validacion.escalada_automaticamente) {

@@ -4,6 +4,7 @@ const db = require('../src/config/database');
 const Validacion = require('../src/models/Validacion');
 const Comentario = require('../src/models/Comentario');
 const Notificacion = require('../src/models/Notificacion');
+const { fail } = require('assert');
 
 describe('Sistema de Validaciones - Tests Completos', () => {
   let adminToken, clienteToken, tecnicoToken;
