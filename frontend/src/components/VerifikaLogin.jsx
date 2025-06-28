@@ -13,6 +13,16 @@ const VerifikaLogin = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Función para rellenar credenciales de demo
+  const fillDemoCredentials = () => {
+    setCredentials({
+      email: 'admin@bluesystem.io',
+      password: 'admin123',
+      remember: false
+    });
+    setError(''); // Limpiar errores previos
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -116,20 +126,37 @@ const VerifikaLogin = ({ onClose }) => {
             </label>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-          >
-            {loading ? 'Iniciando sesión...' : 'Acceder a Verifika'}
-          </button>
+          <div className="space-y-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              {loading ? 'Iniciando sesión...' : 'Acceder a Verifika'}
+            </button>
+            
+            <button
+              type="button"
+              onClick={fillDemoCredentials}
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200"
+            >
+              🚀 Rellenar Credenciales Demo
+            </button>
+          </div>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Para acceso de prueba, contacta al administrador
-          </p>
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+            <p className="text-sm font-medium text-green-800 mb-2">
+              🎯 Credenciales de Demo Disponibles
+            </p>
+            <div className="text-xs text-green-700 space-y-1">
+              <div><strong>Email:</strong> admin@bluesystem.io</div>
+              <div><strong>Password:</strong> admin123</div>
+              <div className="text-green-600 mt-2">Click en "Rellenar Credenciales Demo" arriba</div>
+            </div>
+          </div>
+          <div className="text-xs text-gray-500">
             Backend: localhost:3001 • Estado: {error ? 'Desconectado' : 'Disponible'}
           </div>
         </div>
