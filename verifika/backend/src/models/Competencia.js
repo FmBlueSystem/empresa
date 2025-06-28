@@ -170,7 +170,7 @@ class Competencia {
       const params = [];
 
       allowedFields.forEach(field => {
-        if (updateData.hasOwnProperty(field)) {
+        if (Object.prototype.hasOwnProperty.call(updateData, field)) {
           setClause.push(`${field} = ?`);
           params.push(updateData[field]);
         }

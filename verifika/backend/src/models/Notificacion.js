@@ -218,8 +218,8 @@ class Notificacion {
       const updates = [];
       const valores = [];
 
-      for (const campo of camposActualizables) {
-        if (datosActualizacion.hasOwnProperty(campo)) {
+        for (const campo of camposActualizables) {
+          if (Object.prototype.hasOwnProperty.call(datosActualizacion, campo)) {
           updates.push(`${campo} = ?`);
           
           if (campo === 'metadata') {

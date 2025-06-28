@@ -95,7 +95,7 @@ class Tecnico {
   // Buscar técnico por ID
   static async findById(id) {
     try {
-      const result = await database.query(`
+      const [rows] = await database.query(`
         SELECT 
           tp.*,
           u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado,
@@ -105,7 +105,6 @@ class Tecnico {
         WHERE tp.id = ?
       `, [id]);
 
-      const rows = Array.isArray(result) ? result : [result];
       if (!rows || rows.length === 0) return null;
 
       const tecnico = new Tecnico(rows[0]);
@@ -121,7 +120,7 @@ class Tecnico {
   // Buscar técnico por usuario_id
   static async findByUserId(usuario_id) {
     try {
-      const result = await database.query(`
+      const [rows] = await database.query(`
         SELECT 
           tp.*,
           u.email, u.nombre, u.apellido, u.telefono, u.estado, u.email_verificado
@@ -130,7 +129,6 @@ class Tecnico {
         WHERE tp.usuario_id = ?
       `, [usuario_id]);
 
-      const rows = Array.isArray(result) ? result : [result];
       if (rows.length === 0) return null;
       
       const tecnico = new Tecnico(rows[0]);
@@ -212,13 +210,11 @@ class Tecnico {
 
       // Ejecutar ambas consultas
       params.push(parseInt(limit), parseInt(offset));
-      const result = await database.query(query, params);
-      const rows = Array.isArray(result) ? result : [result];
+      const [rows] = await database.query(query, params);
 
       // Contar total (sin limit/offset)
       const countParams = params.slice(0, -2); // Remove limit and offset
-      const countResult = await database.query(countQuery, countParams);
-      const countRows = Array.isArray(countResult) ? countResult : [countResult];
+      const [countRows] = await database.query(countQuery, countParams);
 
       const tecnicos = rows.map(row => {
         const tecnico = new Tecnico(row);
@@ -262,7 +258,7 @@ class Tecnico {
       const params = [];
 
       allowedFields.forEach(field => {
-        if (updateData.hasOwnProperty(field)) {
+        if (Object.prototype.hasOwnProperty.call(updateData, field)) {
           setClause.push(`${field} = ?`);
           params.push(updateData[field]);
         }
@@ -315,7 +311,7 @@ class Tecnico {
   // Obtener competencias del técnico
   async getCompetencias() {
     try {
-      const result = await database.query(`
+      const [rows] = await database.query(`
         SELECT 
           tc.*,
           cc.nombre, cc.descripcion, cc.categoria, cc.nivel_requerido,

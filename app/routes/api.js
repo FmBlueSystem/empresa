@@ -146,7 +146,7 @@ router.post('/auth/logout', (req, res) => {
 });
 
 // Error handling for unknown API routes
-router.use('*', (req, res) => {
+router.use((req, res) => {
   res.status(404).json({
     error: 'API endpoint not found',
     message: `Cannot ${req.method} ${req.originalUrl}`,
