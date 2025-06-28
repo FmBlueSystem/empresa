@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const database = require('../config/database');
 const mysql = require('mysql2/promise');
 
 class Validacion {
@@ -60,7 +60,7 @@ class Validacion {
    * Crear nueva validación con configuración automática de plazos
    */
   static async create(validacionData) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -99,12 +99,13 @@ class Validacion {
         validacionData.complejidad_revision || 'moderada'
       ];
 
-      const [result] = await connection.execute(query, values);
-      
+      const result = await connection.query(query, values);
       await connection.commit();
 
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
+
       // Obtener la validación creada
-      const nuevaValidacion = await this.findById(result.insertId);
+      const nuevaValidacion = await this.findById(insertId);
       
       // Crear notificación automática
       await this.createNotificacion(
@@ -150,7 +151,7 @@ class Validacion {
       WHERE v.id = ?
     `;
 
-    const [rows] = await db.execute(query, [id]);
+    const rows = await database.query(query, [id]);
     
     if (rows.length === 0) {
       return null;
@@ -257,16 +258,13 @@ class Validacion {
 
     // Paginación
     if (paginacion.limit) {
-      query += ` LIMIT ?`;
-      valores.push(parseInt(paginacion.limit));
-      
-      if (paginacion.offset) {
-        query += ` OFFSET ?`;
-        valores.push(parseInt(paginacion.offset));
-      }
+      const limit = parseInt(paginacion.limit);
+      const offset = parseInt(paginacion.offset) || 0;
+      const limitClause = `LIMIT ${limit} OFFSET ${offset}`;
+      query += ` ${limitClause}`;
     }
 
-    const [rows] = await db.execute(query, valores);
+    const rows = await database.query(query, valores);
     return rows.map(row => new Validacion(row));
   }
 
@@ -274,7 +272,7 @@ class Validacion {
    * Actualizar validación
    */
   async update(datosActualizacion) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -299,6 +297,8 @@ class Validacion {
           // Serializar JSON si es necesario
           if (['criterios_calidad', 'aspectos_positivos', 'aspectos_mejora', 'requerimientos_cambios'].includes(campo)) {
             valores.push(JSON.stringify(datosActualizacion[campo]));
+          } else if (campo === 'escalada_automaticamente') {
+            valores.push(datosActualizacion[campo] ? 1 : 0);
           } else {
             valores.push(datosActualizacion[campo]);
           }
@@ -313,7 +313,7 @@ class Validacion {
       valores.push(this.id);
 
       const query = `UPDATE vf_validaciones SET ${updates.join(', ')} WHERE id = ?`;
-      await connection.execute(query, valores);
+      await connection.query(query, valores);
 
       await connection.commit();
 
@@ -338,7 +338,7 @@ class Validacion {
    * Validar (aprobar) actividad
    */
   async validar(validadorId, datosValidacion) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -361,7 +361,7 @@ class Validacion {
       await this.update(updates);
 
       // Actualizar estado de la actividad
-      await connection.execute(
+      await connection.query(
         'UPDATE vf_actividades SET estado = ?, validado_por = ?, fecha_validacion = ?, puntuacion_calidad = ? WHERE id = ?',
         ['validada', validadorId, new Date(), datosValidacion.puntuacion_general, this.actividad_id]
       );
@@ -391,7 +391,7 @@ class Validacion {
    * Rechazar actividad con feedback
    */
   async rechazar(validadorId, datosRechazo) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -413,7 +413,7 @@ class Validacion {
       await this.update(updates);
 
       // Actualizar estado de la actividad
-      await connection.execute(
+      await connection.query(
         'UPDATE vf_actividades SET estado = ?, observaciones_validacion = ? WHERE id = ?',
         ['rechazada', datosRechazo.comentario_principal, this.actividad_id]
       );
@@ -612,7 +612,7 @@ class Validacion {
       ${whereClause}
     `;
 
-    const [rows] = await db.execute(query, valores);
+    const rows = await database.query(query, valores);
     return rows[0];
   }
 
@@ -662,7 +662,7 @@ class Validacion {
       ORDER BY puntuacion_promedio DESC
     `;
 
-    const [rows] = await db.execute(query, valores);
+    const rows = await database.query(query, valores);
     return rows;
   }
 
@@ -685,7 +685,7 @@ class Validacion {
       ORDER BY fecha DESC
     `;
 
-    const [rows] = await db.execute(query, [parseInt(periodo)]);
+    const rows = await database.query(query, [parseInt(periodo)]);
     return rows;
   }
 
@@ -747,7 +747,7 @@ class Validacion {
    * Validar que la actividad existe y está completada
    */
   static async validateActividad(actividadId, connection = null) {
-    const conn = connection || db;
+    const conn = connection || database;
     
     const query = `
       SELECT id, estado, tecnico_id, titulo
@@ -755,7 +755,7 @@ class Validacion {
       WHERE id = ? AND estado = 'completada'
     `;
 
-    const [rows] = await conn.execute(query, [actividadId]);
+    const rows = await conn.query(query, [actividadId]);
     
     if (rows.length === 0) {
       throw new Error('La actividad no existe o no está completada');
@@ -768,7 +768,7 @@ class Validacion {
    * Validar que el validador tiene permisos sobre el cliente
    */
   static async validateValidadorPermiso(validadorId, clienteId, connection = null) {
-    const conn = connection || db;
+    const conn = connection || database;
     
     // Por ahora, permitir validación a admins y usuarios del cliente
     const query = `
@@ -777,7 +777,7 @@ class Validacion {
       WHERE u.id = ? AND (u.esAdmin = 1 OR u.cliente_id = ?)
     `;
 
-    const [rows] = await conn.execute(query, [validadorId, clienteId]);
+    const rows = await conn.query(query, [validadorId, clienteId]);
     
     if (rows.length === 0) {
       throw new Error('El validador no tiene permisos sobre este cliente');
@@ -797,7 +797,7 @@ class Validacion {
       LIMIT 1
     `;
 
-    const [rows] = await db.execute(query, [clienteId]);
+    const rows = await database.query(query, [clienteId]);
     return rows[0] || null;
   }
 
@@ -810,7 +810,7 @@ class Validacion {
       VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    await db.execute(query, [usuarioId, tipo, titulo, mensaje, entidadTipo, entidadId]);
+    await database.query(query, [usuarioId, tipo, titulo, mensaje, entidadTipo, entidadId]);
   }
 
   /**
