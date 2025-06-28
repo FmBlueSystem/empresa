@@ -208,13 +208,13 @@ class Tecnico {
         ${whereClause}
       `;
 
-      // Ejecutar ambas consultas
-      params.push(parseInt(limit), parseInt(offset));
-      const [rows] = await database.query(query, params);
-
-      // Contar total (sin limit/offset)
-      const countParams = params.slice(0, -2); // Remove limit and offset
-      const [countRows] = await database.query(countQuery, countParams);
+      // Construir LIMIT dinámicamente para evitar problemas con mysql2
+      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+      const finalQuery = query.replace('LIMIT ? OFFSET ?', limitClause);
+      
+      // Ejecutar ambas consultas (sin parámetros LIMIT/OFFSET)
+      const rows = await database.query(finalQuery, params);
+      const countRows = await database.query(countQuery, params);
 
       const tecnicos = rows.map(row => {
         const tecnico = new Tecnico(row);

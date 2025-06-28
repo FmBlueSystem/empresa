@@ -108,12 +108,12 @@ class Competencia {
 
       if (certificacion_requerida !== undefined) {
         whereClause += ' AND certificacion_requerida = ?';
-        params.push(certificacion_requerida);
+        params.push(certificacion_requerida ? 1 : 0);
       }
 
       if (activo !== undefined) {
         whereClause += ' AND activo = ?';
-        params.push(activo);
+        params.push(activo ? 1 : 0);
       }
 
       if (search) {
@@ -121,21 +121,29 @@ class Competencia {
         params.push(`%${search}%`, `%${search}%`);
       }
 
-      // Query principal
+      // Query principal (construir LIMIT dinámicamente para evitar problemas)
+      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
       const query = `
-        SELECT *, COUNT(*) OVER() as total_count
+        SELECT *
         FROM vf_competencias_catalogo
         ${whereClause}
         ORDER BY categoria, nombre
-        LIMIT ? OFFSET ?
+        ${limitClause}
       `;
 
-      params.push(parseInt(limit), parseInt(offset));
-      const result = await database.query(query, params);
-      const rows = Array.isArray(result) ? result : [result];
+      // Query para contar total
+      const countQuery = `
+        SELECT COUNT(*) as total_count
+        FROM vf_competencias_catalogo
+        ${whereClause}
+      `;
+
+      // Ejecutar ambas queries (sin LIMIT/OFFSET parameters)
+      const rows = await database.query(query, params);
+      const countResult = await database.query(countQuery, params);
 
       const competencias = rows.map(row => new Competencia(row));
-      const totalCount = rows.length > 0 ? rows[0].total_count : 0;
+      const totalCount = countResult.length > 0 ? countResult[0].total_count : 0;
 
       return {
         competencias,
