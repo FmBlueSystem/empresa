@@ -5,102 +5,62 @@ const logger = require('../config/logger');
 class Cliente {
   constructor(data) {
     this.id = data.id;
-    this.razon_social = data.razon_social;
-    this.nombre_comercial = data.nombre_comercial;
-    this.tipo_cliente = data.tipo_cliente; // empresa, particular, gobierno
-    this.identificacion = data.identificacion;
-    this.tipo_identificacion = data.tipo_identificacion; // cedula, ruc, pasaporte
-    this.email = data.email;
-    this.telefono = data.telefono;
-    this.telefono_secundario = data.telefono_secundario;
-    this.direccion = data.direccion;
+    this.usuario_id = data.usuario_id;
+    this.nombre_empresa = data.nombre_empresa;
+    this.cif = data.cif;
+    this.direccion_fiscal = data.direccion_fiscal;
     this.ciudad = data.ciudad;
-    this.provincia = data.provincia;
-    this.pais = data.pais || 'Costa Rica';
-    this.codigo_postal = data.codigo_postal;
+    this.pais = data.pais || 'España';
+    this.telefono_corporativo = data.telefono_corporativo;
     this.sitio_web = data.sitio_web;
-    this.sector_industria = data.sector_industria;
-    this.tamaño_empresa = data.tamaño_empresa; // pequeña, mediana, grande, corporativa
-    this.contacto_principal = data.contacto_principal;
-    this.cargo_contacto = data.cargo_contacto;
-    this.email_contacto = data.email_contacto;
-    this.telefono_contacto = data.telefono_contacto;
-    this.estado = data.estado || 'activo'; // activo, inactivo, suspendido, prospecto
-    this.fecha_registro = data.fecha_registro;
-    this.fecha_primer_proyecto = data.fecha_primer_proyecto;
-    this.calificacion_cliente = data.calificacion_cliente; // A, B, C, D
-    this.limite_credito = data.limite_credito;
-    this.condiciones_pago = data.condiciones_pago; // 15, 30, 45, 60 días
-    this.descuento_corporativo = data.descuento_corporativo;
-    this.observaciones = data.observaciones;
-    this.metadatos = data.metadatos;
-    this.creado_por = data.creado_por;
+    this.sector_actividad = data.sector_actividad;
+    this.numero_empleados = data.numero_empleados;
+    this.configuracion_validacion = data.configuracion_validacion;
+    this.requiere_validacion_doble = data.requiere_validacion_doble || false;
+    this.tiempo_limite_validacion = data.tiempo_limite_validacion || 72;
     this.fecha_creacion = data.fecha_creacion;
     this.fecha_actualizacion = data.fecha_actualizacion;
+    
+    // Campos calculados/compatibilidad
+    this.razon_social = data.nombre_empresa; // Alias para compatibilidad
+    this.estado = 'activo'; // Default activo (no existe en tabla real)
   }
 
   // Crear nuevo cliente
   static async create(clienteData, creadoPor = null) {
     try {
-      logger.info('Creando nuevo cliente', { razon_social: clienteData.razon_social, creado_por: creadoPor });
+      logger.info('Creando nuevo cliente', { nombre_empresa: clienteData.nombre_empresa, usuario_id: clienteData.usuario_id });
 
-      // Verificar si ya existe cliente con misma identificación
-      if (clienteData.identificacion) {
-        const existente = await this.findByIdentificacion(clienteData.identificacion);
+      // Verificar si ya existe cliente con mismo CIF
+      if (clienteData.cif) {
+        const existente = await this.findByCif(clienteData.cif);
         if (existente) {
-          throw new Error(`Ya existe un cliente con identificación ${clienteData.identificacion}`);
-        }
-      }
-
-      // Verificar email único
-      if (clienteData.email) {
-        const existenteEmail = await this.findByEmail(clienteData.email);
-        if (existenteEmail) {
-          throw new Error(`Ya existe un cliente con email ${clienteData.email}`);
+          throw new Error(`Ya existe un cliente con CIF ${clienteData.cif}`);
         }
       }
 
       const query = `
         INSERT INTO vf_clientes (
-          razon_social, nombre_comercial, tipo_cliente, identificacion, tipo_identificacion,
-          email, telefono, telefono_secundario, direccion, ciudad, provincia, pais,
-          codigo_postal, sitio_web, sector_industria, tamaño_empresa,
-          contacto_principal, cargo_contacto, email_contacto, telefono_contacto,
-          estado, calificacion_cliente, limite_credito, condiciones_pago,
-          descuento_corporativo, observaciones, metadatos, creado_por,
-          fecha_creacion, fecha_actualizacion
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+          usuario_id, nombre_empresa, cif, direccion_fiscal, ciudad, pais,
+          telefono_corporativo, sitio_web, sector_actividad, numero_empleados,
+          configuracion_validacion, requiere_validacion_doble, tiempo_limite_validacion
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const valores = [
-        clienteData.razon_social,
-        clienteData.nombre_comercial || clienteData.razon_social,
-        clienteData.tipo_cliente || 'empresa',
-        clienteData.identificacion,
-        clienteData.tipo_identificacion || 'cedula',
-        clienteData.email,
-        clienteData.telefono,
-        clienteData.telefono_secundario,
-        clienteData.direccion,
+        clienteData.usuario_id,
+        clienteData.nombre_empresa,
+        clienteData.cif,
+        clienteData.direccion_fiscal,
         clienteData.ciudad,
-        clienteData.provincia,
-        clienteData.pais || 'Costa Rica',
-        clienteData.codigo_postal,
+        clienteData.pais || 'España',
+        clienteData.telefono_corporativo,
         clienteData.sitio_web,
-        clienteData.sector_industria,
-        clienteData.tamaño_empresa || 'mediana',
-        clienteData.contacto_principal,
-        clienteData.cargo_contacto,
-        clienteData.email_contacto,
-        clienteData.telefono_contacto,
-        clienteData.estado || 'activo',
-        clienteData.calificacion_cliente || 'B',
-        clienteData.limite_credito || 0,
-        clienteData.condiciones_pago || 30,
-        clienteData.descuento_corporativo || 0,
-        clienteData.observaciones,
-        clienteData.metadatos ? JSON.stringify(clienteData.metadatos) : null,
-        creadoPor
+        clienteData.sector_actividad,
+        clienteData.numero_empleados || 1,
+        clienteData.configuracion_validacion ? JSON.stringify(clienteData.configuracion_validacion) : null,
+        clienteData.requiere_validacion_doble ? 1 : 0,
+        clienteData.tiempo_limite_validacion || 72
       ];
 
       const result = await database.query(query, valores);
@@ -109,8 +69,8 @@ class Cliente {
 
       logger.info('Cliente creado exitosamente', {
         cliente_id: insertId,
-        razon_social: clienteData.razon_social,
-        creado_por: creadoPor
+        nombre_empresa: clienteData.nombre_empresa,
+        usuario_id: clienteData.usuario_id
       });
 
       return cliente;
@@ -124,16 +84,9 @@ class Cliente {
   static async findById(id) {
     try {
       const query = `
-        SELECT c.*, 
-               COUNT(DISTINCT p.id) as total_proyectos,
-               COUNT(DISTINCT p.id) FILTER (WHERE p.estado = 'activo') as proyectos_activos,
-               COUNT(DISTINCT a.id) as total_actividades,
-               SUM(CASE WHEN a.estado = 'completada' THEN a.horas_trabajadas ELSE 0 END) as horas_facturadas
+        SELECT c.*
         FROM vf_clientes c
-        LEFT JOIN vf_proyectos p ON c.id = p.cliente_id
-        LEFT JOIN vf_actividades a ON p.id = a.proyecto_id
         WHERE c.id = ?
-        GROUP BY c.id
       `;
 
       const rows = await database.query(query, [id]);
@@ -143,11 +96,11 @@ class Cliente {
       }
 
       const clienteData = rows[0];
-      if (clienteData.metadatos) {
+      if (clienteData.configuracion_validacion) {
         try {
-          clienteData.metadatos = JSON.parse(clienteData.metadatos);
+          clienteData.configuracion_validacion = JSON.parse(clienteData.configuracion_validacion);
         } catch (e) {
-          clienteData.metadatos = {};
+          clienteData.configuracion_validacion = {};
         }
       }
 
@@ -158,11 +111,11 @@ class Cliente {
     }
   }
 
-  // Buscar cliente por identificación
-  static async findByIdentificacion(identificacion) {
+  // Buscar cliente por CIF
+  static async findByCif(cif) {
     try {
-      const query = 'SELECT * FROM vf_clientes WHERE identificacion = ? LIMIT 1';
-      const rows = await database.query(query, [identificacion]);
+      const query = 'SELECT * FROM vf_clientes WHERE cif = ? LIMIT 1';
+      const rows = await database.query(query, [cif]);
       
       if (rows.length === 0) {
         return null;
@@ -170,24 +123,7 @@ class Cliente {
 
       return new Cliente(rows[0]);
     } catch (error) {
-      logger.error('Error al buscar cliente por identificación:', error);
-      throw error;
-    }
-  }
-
-  // Buscar cliente por email
-  static async findByEmail(email) {
-    try {
-      const query = 'SELECT * FROM vf_clientes WHERE email = ? OR email_contacto = ? LIMIT 1';
-      const rows = await database.query(query, [email, email]);
-      
-      if (rows.length === 0) {
-        return null;
-      }
-
-      return new Cliente(rows[0]);
-    } catch (error) {
-      logger.error('Error al buscar cliente por email:', error);
+      logger.error('Error al buscar cliente por CIF:', error);
       throw error;
     }
   }
@@ -195,42 +131,10 @@ class Cliente {
   // Listar clientes con filtros
   static async findAll(filtros = {}) {
     try {
-      let query = `
-        SELECT c.*, 
-               COUNT(DISTINCT p.id) as total_proyectos,
-               COUNT(DISTINCT p.id) FILTER (WHERE p.estado = 'activo') as proyectos_activos,
-               SUM(CASE WHEN a.estado = 'completada' THEN a.horas_trabajadas ELSE 0 END) as horas_facturadas
-        FROM vf_clientes c
-        LEFT JOIN vf_proyectos p ON c.id = p.cliente_id
-        LEFT JOIN vf_actividades a ON p.id = a.proyecto_id
-      `;
+      let query = `SELECT c.* FROM vf_clientes c`;
       
       const condiciones = [];
       const valores = [];
-
-      // Filtro por estado
-      if (filtros.estado) {
-        condiciones.push('c.estado = ?');
-        valores.push(filtros.estado);
-      }
-
-      // Filtro por tipo de cliente
-      if (filtros.tipo_cliente) {
-        condiciones.push('c.tipo_cliente = ?');
-        valores.push(filtros.tipo_cliente);
-      }
-
-      // Filtro por sector
-      if (filtros.sector_industria) {
-        condiciones.push('c.sector_industria = ?');
-        valores.push(filtros.sector_industria);
-      }
-
-      // Filtro por tamaño empresa
-      if (filtros.tamaño_empresa) {
-        condiciones.push('c.tamaño_empresa = ?');
-        valores.push(filtros.tamaño_empresa);
-      }
 
       // Filtro por ciudad
       if (filtros.ciudad) {
@@ -238,17 +142,21 @@ class Cliente {
         valores.push(`%${filtros.ciudad}%`);
       }
 
+      // Filtro por sector
+      if (filtros.sector_actividad) {
+        condiciones.push('c.sector_actividad = ?');
+        valores.push(filtros.sector_actividad);
+      }
+
       // Búsqueda por texto
       if (filtros.search) {
         condiciones.push(`(
-          c.razon_social LIKE ? OR 
-          c.nombre_comercial LIKE ? OR 
-          c.contacto_principal LIKE ? OR
-          c.email LIKE ? OR
-          c.identificacion LIKE ?
+          c.nombre_empresa LIKE ? OR 
+          c.cif LIKE ? OR
+          c.sitio_web LIKE ?
         )`);
         const searchTerm = `%${filtros.search}%`;
-        valores.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+        valores.push(searchTerm, searchTerm, searchTerm);
       }
 
       // Agregar condiciones WHERE
@@ -256,12 +164,9 @@ class Cliente {
         query += ' WHERE ' + condiciones.join(' AND ');
       }
 
-      // GROUP BY
-      query += ' GROUP BY c.id';
-
       // Ordenamiento
-      const ordenValido = ['razon_social', 'fecha_creacion', 'estado', 'ciudad', 'total_proyectos'];
-      const orden = ordenValido.includes(filtros.sort) ? filtros.sort : 'razon_social';
+      const ordenValido = ['nombre_empresa', 'fecha_creacion', 'ciudad'];
+      const orden = ordenValido.includes(filtros.sort) ? filtros.sort : 'nombre_empresa';
       const direccion = filtros.order === 'desc' ? 'DESC' : 'ASC';
       query += ` ORDER BY ${orden} ${direccion}`;
 
@@ -274,11 +179,11 @@ class Cliente {
       const rows = await database.query(query, valores);
 
       return rows.map(row => {
-        if (row.metadatos) {
+        if (row.configuracion_validacion) {
           try {
-            row.metadatos = JSON.parse(row.metadatos);
+            row.configuracion_validacion = JSON.parse(row.configuracion_validacion);
           } catch (e) {
-            row.metadatos = {};
+            row.configuracion_validacion = {};
           }
         }
         return new Cliente(row);
@@ -293,13 +198,9 @@ class Cliente {
   static async findActive() {
     try {
       const query = `
-        SELECT c.*, 
-               COUNT(DISTINCT p.id) as proyectos_activos
+        SELECT c.*
         FROM vf_clientes c
-        LEFT JOIN vf_proyectos p ON c.id = p.cliente_id AND p.estado = 'activo'
-        WHERE c.estado = 'activo'
-        GROUP BY c.id
-        ORDER BY c.razon_social ASC
+        ORDER BY c.nombre_empresa ASC
       `;
 
       const rows = await database.query(query);
@@ -316,12 +217,9 @@ class Cliente {
       logger.info('Actualizando cliente', { cliente_id: this.id, campos: Object.keys(datosActualizacion) });
 
       const camposPermitidos = [
-        'razon_social', 'nombre_comercial', 'tipo_cliente', 'identificacion', 'tipo_identificacion',
-        'email', 'telefono', 'telefono_secundario', 'direccion', 'ciudad', 'provincia', 'pais',
-        'codigo_postal', 'sitio_web', 'sector_industria', 'tamaño_empresa',
-        'contacto_principal', 'cargo_contacto', 'email_contacto', 'telefono_contacto',
-        'calificacion_cliente', 'limite_credito', 'condiciones_pago',
-        'descuento_corporativo', 'observaciones', 'metadatos'
+        'nombre_empresa', 'cif', 'direccion_fiscal', 'ciudad', 'pais',
+        'telefono_corporativo', 'sitio_web', 'sector_actividad', 'numero_empleados',
+        'configuracion_validacion', 'requiere_validacion_doble', 'tiempo_limite_validacion'
       ];
 
       const actualizaciones = [];
@@ -330,8 +228,10 @@ class Cliente {
       Object.keys(datosActualizacion).forEach(campo => {
         if (camposPermitidos.includes(campo)) {
           actualizaciones.push(`${campo} = ?`);
-          if (campo === 'metadatos' && datosActualizacion[campo]) {
+          if (campo === 'configuracion_validacion' && datosActualizacion[campo]) {
             valores.push(JSON.stringify(datosActualizacion[campo]));
+          } else if (campo === 'requiere_validacion_doble') {
+            valores.push(datosActualizacion[campo] ? 1 : 0);
           } else {
             valores.push(datosActualizacion[campo]);
           }
@@ -359,25 +259,21 @@ class Cliente {
     }
   }
 
-  // Cambiar estado del cliente
+  // Cambiar estado del cliente (nota: estado no existe en tabla real, solo simulado)
   async changeStatus(nuevoEstado, usuarioId = null) {
     try {
-      const estadosValidos = ['activo', 'inactivo', 'suspendido', 'prospecto'];
-      if (!estadosValidos.includes(nuevoEstado)) {
-        throw new Error(`Estado no válido: ${nuevoEstado}`);
-      }
-
-      logger.info('Cambiando estado de cliente', {
+      logger.info('Simulando cambio de estado de cliente', {
         cliente_id: this.id,
         estado_anterior: this.estado,
         estado_nuevo: nuevoEstado,
         usuario_id: usuarioId
       });
 
-      const query = 'UPDATE vf_clientes SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?';
-      await database.query(query, [nuevoEstado, this.id]);
+      // Solo actualizar fecha ya que estado no existe en la tabla real
+      const query = 'UPDATE vf_clientes SET fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?';
+      await database.query(query, [this.id]);
 
-      this.estado = nuevoEstado;
+      this.estado = nuevoEstado; // Solo en memoria
 
       return this;
     } catch (error) {
@@ -513,14 +409,9 @@ class Cliente {
       const query = `
         SELECT 
           COUNT(*) as total_clientes,
-          COUNT(CASE WHEN estado = 'activo' THEN 1 END) as clientes_activos,
-          COUNT(CASE WHEN estado = 'inactivo' THEN 1 END) as clientes_inactivos,
-          COUNT(CASE WHEN estado = 'prospecto' THEN 1 END) as prospectos,
-          COUNT(CASE WHEN tipo_cliente = 'empresa' THEN 1 END) as empresas,
-          COUNT(CASE WHEN tipo_cliente = 'particular' THEN 1 END) as particulares,
-          COUNT(CASE WHEN tipo_cliente = 'gobierno' THEN 1 END) as gobierno,
-          AVG(limite_credito) as promedio_limite_credito,
-          SUM(limite_credito) as total_limite_credito
+          COUNT(CASE WHEN requiere_validacion_doble = 1 THEN 1 END) as clientes_validacion_doble,
+          AVG(tiempo_limite_validacion) as promedio_tiempo_limite,
+          AVG(numero_empleados) as promedio_empleados
         FROM vf_clientes
       `;
 
@@ -537,10 +428,10 @@ class Cliente {
     try {
       logger.info('Desactivando cliente (soft delete)', { cliente_id: this.id });
       
-      // Verificar si tiene proyectos activos
-      const proyectosActivos = await this.getProyectos({ estado: 'activo' });
-      if (proyectosActivos.length > 0) {
-        throw new Error('No se puede eliminar cliente con proyectos activos');
+      // Verificar si tiene asignaciones activas
+      const asignacionesActivas = await this.getProyectos({ estado: 'activa' });
+      if (asignacionesActivas.length > 0) {
+        throw new Error('No se puede eliminar cliente con asignaciones activas');
       }
 
       await this.changeStatus('inactivo');

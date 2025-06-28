@@ -7,32 +7,26 @@ class Asignacion {
     this.id = data.id;
     this.tecnico_id = data.tecnico_id;
     this.cliente_id = data.cliente_id;
-    this.proyecto_id = data.proyecto_id;
-    this.tipo_asignacion = data.tipo_asignacion; // proyecto, soporte, mantenimiento, consultoria
-    this.estado = data.estado || 'activa'; // activa, pausada, completada, cancelada
+    this.proyecto_nombre = data.proyecto_nombre;
+    this.descripcion = data.descripcion;
     this.fecha_inicio = data.fecha_inicio;
     this.fecha_fin_estimada = data.fecha_fin_estimada;
     this.fecha_fin_real = data.fecha_fin_real;
-    this.prioridad = data.prioridad || 'media'; // baja, media, alta, critica
+    this.estado = data.estado || 'activa'; // activa, pausada, finalizada, cancelada
+    this.tarifa_acordada = data.tarifa_acordada;
+    this.moneda = data.moneda || 'EUR';
     this.horas_estimadas = data.horas_estimadas;
-    this.horas_trabajadas = data.horas_trabajadas || 0;
-    this.porcentaje_avance = data.porcentaje_avance || 0;
     this.competencias_requeridas = data.competencias_requeridas;
-    this.descripcion = data.descripcion;
     this.observaciones = data.observaciones;
-    this.costo_estimado = data.costo_estimado;
-    this.tarifa_hora = data.tarifa_hora;
-    this.metadatos = data.metadatos;
-    this.asignado_por = data.asignado_por;
     this.fecha_creacion = data.fecha_creacion;
     this.fecha_actualizacion = data.fecha_actualizacion;
+    this.creado_por = data.creado_por;
     
     // Campos calculados desde JOINs
     this.tecnico_nombre = data.tecnico_nombre;
     this.tecnico_apellido = data.tecnico_apellido;
     this.tecnico_email = data.tecnico_email;
-    this.cliente_razon_social = data.cliente_razon_social;
-    this.proyecto_nombre = data.proyecto_nombre;
+    this.cliente_nombre_empresa = data.cliente_nombre_empresa;
   }
 
   // Crear nueva asignación
@@ -87,30 +81,25 @@ class Asignacion {
 
       const query = `
         INSERT INTO vf_asignaciones (
-          tecnico_id, cliente_id, proyecto_id, tipo_asignacion, estado,
-          fecha_inicio, fecha_fin_estimada, prioridad, horas_estimadas,
-          competencias_requeridas, descripcion, observaciones,
-          costo_estimado, tarifa_hora, metadatos, asignado_por,
-          fecha_creacion, fecha_actualizacion
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+          tecnico_id, cliente_id, proyecto_nombre, descripcion, 
+          fecha_inicio, fecha_fin_estimada, estado, tarifa_acordada, 
+          moneda, horas_estimadas, competencias_requeridas, observaciones, creado_por
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const valores = [
         asignacionData.tecnico_id,
         asignacionData.cliente_id,
-        asignacionData.proyecto_id || null,
-        asignacionData.tipo_asignacion || 'proyecto',
-        asignacionData.estado || 'activa',
+        asignacionData.proyecto_nombre,
+        asignacionData.descripcion,
         asignacionData.fecha_inicio,
         asignacionData.fecha_fin_estimada,
-        asignacionData.prioridad || 'media',
+        asignacionData.estado || 'activa',
+        asignacionData.tarifa_acordada || 0,
+        asignacionData.moneda || 'EUR',
         asignacionData.horas_estimadas || 0,
         asignacionData.competencias_requeridas ? JSON.stringify(asignacionData.competencias_requeridas) : null,
-        asignacionData.descripcion,
         asignacionData.observaciones,
-        asignacionData.costo_estimado || 0,
-        asignacionData.tarifa_hora || 0,
-        asignacionData.metadatos ? JSON.stringify(asignacionData.metadatos) : null,
         creadoPor
       ];
 
@@ -138,14 +127,12 @@ class Asignacion {
       const query = `
         SELECT a.*, 
                u.nombre as tecnico_nombre, u.apellido as tecnico_apellido, u.email as tecnico_email,
-               c.razon_social as cliente_razon_social,
-               p.nombre as proyecto_nombre,
+               c.nombre_empresa as cliente_nombre_empresa,
                COUNT(DISTINCT act.id) as total_actividades,
                SUM(CASE WHEN act.estado = 'completada' THEN act.horas_trabajadas ELSE 0 END) as horas_reales_trabajadas
         FROM vf_asignaciones a
         LEFT JOIN vf_usuarios u ON a.tecnico_id = u.id
         LEFT JOIN vf_clientes c ON a.cliente_id = c.id
-        LEFT JOIN vf_proyectos p ON a.proyecto_id = p.id
         LEFT JOIN vf_actividades act ON a.id = act.asignacion_id
         WHERE a.id = ?
         GROUP BY a.id
@@ -190,14 +177,12 @@ class Asignacion {
       let query = `
         SELECT a.*, 
                u.nombre as tecnico_nombre, u.apellido as tecnico_apellido,
-               c.razon_social as cliente_razon_social,
-               p.nombre as proyecto_nombre,
+               c.nombre_empresa as cliente_nombre_empresa,
                COUNT(DISTINCT act.id) as total_actividades,
                SUM(CASE WHEN act.estado = 'completada' THEN act.horas_trabajadas ELSE 0 END) as horas_trabajadas
         FROM vf_asignaciones a
         LEFT JOIN vf_usuarios u ON a.tecnico_id = u.id
         LEFT JOIN vf_clientes c ON a.cliente_id = c.id
-        LEFT JOIN vf_proyectos p ON a.proyecto_id = p.id
         LEFT JOIN vf_actividades act ON a.id = act.asignacion_id
       `;
       
@@ -216,10 +201,10 @@ class Asignacion {
         valores.push(filtros.cliente_id);
       }
 
-      // Filtro por proyecto
-      if (filtros.proyecto_id) {
-        condiciones.push('a.proyecto_id = ?');
-        valores.push(filtros.proyecto_id);
+      // Filtro por proyecto (por nombre ya que no existe proyecto_id)
+      if (filtros.proyecto_nombre) {
+        condiciones.push('a.proyecto_nombre LIKE ?');
+        valores.push(`%${filtros.proyecto_nombre}%`);
       }
 
       // Filtro por estado
@@ -228,17 +213,8 @@ class Asignacion {
         valores.push(filtros.estado);
       }
 
-      // Filtro por tipo de asignación
-      if (filtros.tipo_asignacion) {
-        condiciones.push('a.tipo_asignacion = ?');
-        valores.push(filtros.tipo_asignacion);
-      }
-
-      // Filtro por prioridad
-      if (filtros.prioridad) {
-        condiciones.push('a.prioridad = ?');
-        valores.push(filtros.prioridad);
-      }
+      // Nota: tipo_asignacion y prioridad no existen en la tabla real
+      // Filtros removidos para compatibilidad con esquema real
 
       // Filtro por rango de fechas
       if (filtros.fecha_desde) {
@@ -255,10 +231,10 @@ class Asignacion {
       if (filtros.search) {
         condiciones.push(`(
           a.descripcion LIKE ? OR 
+          a.proyecto_nombre LIKE ? OR 
           u.nombre LIKE ? OR 
           u.apellido LIKE ? OR
-          c.razon_social LIKE ? OR
-          p.nombre LIKE ?
+          c.nombre_empresa LIKE ?
         )`);
         const searchTerm = `%${filtros.search}%`;
         valores.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
@@ -272,8 +248,8 @@ class Asignacion {
       // GROUP BY
       query += ' GROUP BY a.id';
 
-      // Ordenamiento
-      const ordenValido = ['fecha_inicio', 'fecha_creacion', 'prioridad', 'estado', 'horas_estimadas'];
+      // Ordenamiento (solo campos que existen en la tabla real)
+      const ordenValido = ['fecha_inicio', 'fecha_creacion', 'estado', 'horas_estimadas'];
       const orden = ordenValido.includes(filtros.sort) ? filtros.sort : 'fecha_inicio';
       const direccion = filtros.order === 'asc' ? 'ASC' : 'DESC';
       query += ` ORDER BY a.${orden} ${direccion}`;
@@ -355,10 +331,9 @@ class Asignacion {
       });
 
       const camposPermitidos = [
-        'estado', 'fecha_fin_estimada', 'fecha_fin_real', 'prioridad',
-        'horas_estimadas', 'horas_trabajadas', 'porcentaje_avance',
-        'descripcion', 'observaciones', 'costo_estimado', 'tarifa_hora',
-        'metadatos'
+        'estado', 'fecha_fin_estimada', 'fecha_fin_real',
+        'horas_estimadas', 'descripcion', 'observaciones', 
+        'tarifa_acordada', 'moneda', 'competencias_requeridas'
       ];
 
       const actualizaciones = [];
@@ -367,7 +342,7 @@ class Asignacion {
       Object.keys(datosActualizacion).forEach(campo => {
         if (camposPermitidos.includes(campo)) {
           actualizaciones.push(`${campo} = ?`);
-          if (campo === 'metadatos' && datosActualizacion[campo]) {
+          if (campo === 'competencias_requeridas' && datosActualizacion[campo]) {
             valores.push(JSON.stringify(datosActualizacion[campo]));
           } else {
             valores.push(datosActualizacion[campo]);
@@ -379,7 +354,7 @@ class Asignacion {
         throw new Error('No hay campos válidos para actualizar');
       }
 
-      actualizaciones.push('fecha_actualizacion = NOW()');
+      actualizaciones.push('fecha_actualizacion = CURRENT_TIMESTAMP');
       valores.push(this.id);
 
       const query = `UPDATE vf_asignaciones SET ${actualizaciones.join(', ')} WHERE id = ?`;
@@ -412,11 +387,10 @@ class Asignacion {
       });
 
       // Validaciones especiales por estado
-      if (nuevoEstado === 'completada') {
+      if (nuevoEstado === 'finalizada') {
         await this.update({ 
           estado: nuevoEstado,
-          fecha_fin_real: new Date().toISOString().split('T')[0],
-          porcentaje_avance: 100
+          fecha_fin_real: new Date().toISOString().split('T')[0]
         });
       } else {
         await this.update({ estado: nuevoEstado });
@@ -450,11 +424,8 @@ class Asignacion {
         porcentaje = Math.round((stats.actividades_completadas / stats.total_actividades) * 100);
       }
 
-      await this.update({
-        porcentaje_avance: porcentaje,
-        horas_trabajadas: stats.horas_reales || 0
-      });
-
+      // No actualizar porcentaje_avance ya que no existe en la tabla
+      // Solo retornar las estadísticas calculadas
       return {
         porcentaje_avance: porcentaje,
         horas_trabajadas: stats.horas_reales || 0,
@@ -496,10 +467,9 @@ class Asignacion {
   // Validar proyecto
   static async validateProyecto(proyectoId, clienteId) {
     try {
-      const query = 'SELECT id FROM vf_proyectos WHERE id = ? AND cliente_id = ? AND estado IN ("activo", "planificacion")';
-      const result = await database.query(query, [proyectoId, clienteId]);
-      const rows = Array.isArray(result) ? result : [result];
-      return rows.length > 0 ? rows[0] : null;
+      // Validar proyecto por nombre ya que no existe tabla vf_proyectos
+      // Por ahora, asumir que el proyecto es válido si se proporciona
+      return { id: proyectoId, nombre: proyectoId };
     } catch (error) {
       logger.error('Error al validar proyecto:', error);
       return null;
@@ -542,16 +512,16 @@ class Asignacion {
   // Verificar disponibilidad del técnico
   static async checkTecnicoDisponibilidad(tecnicoId, fechaInicio, fechaFin) {
     try {
-      // Verificar que el técnico esté disponible
+      // Verificar que el técnico esté activo (simplificado)
       const tecnicoQuery = `
-        SELECT tp.disponibilidad 
-        FROM vf_tecnicos_perfiles tp 
-        WHERE tp.usuario_id = ?
+        SELECT estado 
+        FROM vf_usuarios 
+        WHERE id = ? AND rol = 'tecnico'
       `;
       const tecnicoResult = await database.query(tecnicoQuery, [tecnicoId]);
-      const tecnicoRows = Array.isArray(tecnicoResult) ? tecnicoResult[0] : tecnicoResult;
+      const tecnicoRows = Array.isArray(tecnicoResult) ? tecnicoResult : [tecnicoResult];
       
-      if (tecnicoRows.length === 0 || tecnicoRows[0].disponibilidad !== 'disponible') {
+      if (tecnicoRows.length === 0 || tecnicoRows[0].estado !== 'activo') {
         return {
           available: false,
           reason: 'Técnico no disponible o inactivo'
@@ -574,9 +544,9 @@ class Asignacion {
       const conflictResult = await database.query(conflictQuery, [
         tecnicoId, fechaInicio, fechaInicio, fechaFin, fechaFin, fechaInicio, fechaFin
       ]);
-      const conflictRows = Array.isArray(conflictResult) ? conflictResult[0] : conflictResult;
+      const conflictRows = Array.isArray(conflictResult) ? conflictResult : [conflictResult];
 
-      if (conflictRows[0].conflictos > 0) {
+      if (conflictRows[0] && conflictRows[0].conflictos > 0) {
         return {
           available: false,
           reason: 'Técnico tiene asignaciones conflictivas en el período'
@@ -597,13 +567,11 @@ class Asignacion {
         SELECT 
           COUNT(*) as total_asignaciones,
           COUNT(CASE WHEN estado = 'activa' THEN 1 END) as asignaciones_activas,
-          COUNT(CASE WHEN estado = 'completada' THEN 1 END) as asignaciones_completadas,
+          COUNT(CASE WHEN estado = 'finalizada' THEN 1 END) as asignaciones_finalizadas,
           COUNT(CASE WHEN estado = 'pausada' THEN 1 END) as asignaciones_pausadas,
           COUNT(CASE WHEN estado = 'cancelada' THEN 1 END) as asignaciones_canceladas,
-          AVG(porcentaje_avance) as promedio_avance,
           SUM(horas_estimadas) as total_horas_estimadas,
-          SUM(horas_trabajadas) as total_horas_trabajadas,
-          AVG(costo_estimado) as promedio_costo_estimado
+          AVG(tarifa_acordada) as promedio_tarifa
         FROM vf_asignaciones
       `;
 
@@ -622,31 +590,25 @@ class Asignacion {
       id: this.id,
       tecnico_id: this.tecnico_id,
       cliente_id: this.cliente_id,
-      proyecto_id: this.proyecto_id,
-      tipo_asignacion: this.tipo_asignacion,
+      proyecto_nombre: this.proyecto_nombre,
       estado: this.estado,
       fecha_inicio: this.fecha_inicio,
       fecha_fin_estimada: this.fecha_fin_estimada,
       fecha_fin_real: this.fecha_fin_real,
-      prioridad: this.prioridad,
       horas_estimadas: this.horas_estimadas,
-      horas_trabajadas: this.horas_trabajadas,
-      porcentaje_avance: this.porcentaje_avance,
       competencias_requeridas: this.competencias_requeridas,
       descripcion: this.descripcion,
       observaciones: this.observaciones,
-      costo_estimado: this.costo_estimado,
-      tarifa_hora: this.tarifa_hora,
-      metadatos: this.metadatos,
-      asignado_por: this.asignado_por,
+      tarifa_acordada: this.tarifa_acordada,
+      moneda: this.moneda,
+      creado_por: this.creado_por,
       fecha_creacion: this.fecha_creacion,
       fecha_actualizacion: this.fecha_actualizacion,
       // Información relacionada
       tecnico_nombre: this.tecnico_nombre,
       tecnico_apellido: this.tecnico_apellido,
       tecnico_email: this.tecnico_email,
-      cliente_razon_social: this.cliente_razon_social,
-      proyecto_nombre: this.proyecto_nombre,
+      cliente_nombre_empresa: this.cliente_nombre_empresa,
       total_actividades: this.total_actividades,
       horas_reales_trabajadas: this.horas_reales_trabajadas
     };

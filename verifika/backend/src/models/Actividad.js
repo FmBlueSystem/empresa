@@ -8,43 +8,26 @@ class Actividad {
     this.tecnico_id = data.tecnico_id;
     this.titulo = data.titulo;
     this.descripcion = data.descripcion;
+    this.fecha_actividad = data.fecha_actividad;
+    this.hora_inicio = data.hora_inicio;
+    this.hora_fin = data.hora_fin;
+    this.horas_trabajadas = data.horas_trabajadas;
     this.tipo_actividad = data.tipo_actividad || 'desarrollo';
-    this.estado = data.estado || 'pendiente';
-    this.prioridad = data.prioridad || 'media';
+    this.ubicacion = data.ubicacion;
+    this.estado = data.estado || 'borrador';
+    this.archivos_adjuntos = data.archivos_adjuntos ? 
+      (typeof data.archivos_adjuntos === 'string' ? JSON.parse(data.archivos_adjuntos) : data.archivos_adjuntos) : [];
+    this.observaciones_tecnico = data.observaciones_tecnico;
+    this.fecha_envio = data.fecha_envio;
+    this.fecha_creacion = data.fecha_creacion;
+    this.fecha_actualizacion = data.fecha_actualizacion;
     
-    // Tracking de tiempo
-    this.fecha_inicio = data.fecha_inicio;
-    this.fecha_fin = data.fecha_fin;
-    this.tiempo_estimado_horas = data.tiempo_estimado_horas;
-    this.tiempo_trabajado_horas = data.tiempo_trabajado_horas || 0;
-    this.cronometro_activo = data.cronometro_activo || false;
-    this.ultima_pausa = data.ultima_pausa;
-    
-    // Progreso
-    this.porcentaje_completado = data.porcentaje_completado || 0;
-    this.hitos_completados = data.hitos_completados ? JSON.parse(data.hitos_completados) : [];
-    
-    // Evidencias
-    this.archivos_adjuntos = data.archivos_adjuntos ? JSON.parse(data.archivos_adjuntos) : [];
-    this.capturas_pantalla = data.capturas_pantalla ? JSON.parse(data.capturas_pantalla) : [];
-    this.enlaces_externos = data.enlaces_externos ? JSON.parse(data.enlaces_externos) : [];
-    
-    // Validación
-    this.validado_por = data.validado_por;
-    this.fecha_validacion = data.fecha_validacion;
-    this.observaciones_validacion = data.observaciones_validacion;
-    this.puntuacion_calidad = data.puntuacion_calidad;
-    
-    // Metadatos
-    this.competencias_utilizadas = data.competencias_utilizadas ? JSON.parse(data.competencias_utilizadas) : [];
-    this.herramientas_utilizadas = data.herramientas_utilizadas ? JSON.parse(data.herramientas_utilizadas) : [];
-    this.dificultad_percibida = data.dificultad_percibida;
-    this.satisfaccion_tecnico = data.satisfaccion_tecnico;
-    
-    // Auditoría
-    this.creado_en = data.creado_en;
-    this.actualizado_en = data.actualizado_en;
-    this.creado_por = data.creado_por;
+    // Campos calculados desde JOINs
+    this.tecnico_nombre = data.tecnico_nombre;
+    this.tecnico_apellidos = data.tecnico_apellidos;
+    this.proyecto_nombre = data.proyecto_nombre;
+    this.cliente_id = data.cliente_id;
+    this.cliente_nombre = data.cliente_nombre;
   }
 
   // =============================================
@@ -73,52 +56,36 @@ class Actividad {
 
       const query = `
         INSERT INTO vf_actividades (
-          asignacion_id, tecnico_id, titulo, descripcion, tipo_actividad, estado, prioridad,
-          fecha_inicio, fecha_fin, tiempo_estimado_horas, tiempo_trabajado_horas,
-          cronometro_activo, porcentaje_completado, hitos_completados,
-          archivos_adjuntos, capturas_pantalla, enlaces_externos,
-          competencias_utilizadas, herramientas_utilizadas, dificultad_percibida,
-          satisfaccion_tecnico, creado_por
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          asignacion_id, tecnico_id, titulo, descripcion, fecha_actividad,
+          hora_inicio, hora_fin, horas_trabajadas, tipo_actividad, ubicacion,
+          estado, archivos_adjuntos, observaciones_tecnico
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const values = [
         actividadData.asignacion_id,
         actividadData.tecnico_id,
         actividadData.titulo,
-        actividadData.descripcion || null,
+        actividadData.descripcion,
+        actividadData.fecha_actividad,
+        actividadData.hora_inicio,
+        actividadData.hora_fin,
+        actividadData.horas_trabajadas || 0,
         actividadData.tipo_actividad || 'desarrollo',
-        actividadData.estado || 'pendiente',
-        actividadData.prioridad || 'media',
-        actividadData.fecha_inicio || null,
-        actividadData.fecha_fin || null,
-        actividadData.tiempo_estimado_horas || null,
-        actividadData.tiempo_trabajado_horas || 0,
-        actividadData.cronometro_activo ? 1 : 0,
-        actividadData.porcentaje_completado || 0,
-        JSON.stringify(actividadData.hitos_completados || []),
+        actividadData.ubicacion || null,
+        actividadData.estado || 'borrador',
         JSON.stringify(actividadData.archivos_adjuntos || []),
-        JSON.stringify(actividadData.capturas_pantalla || []),
-        JSON.stringify(actividadData.enlaces_externos || []),
-        JSON.stringify(actividadData.competencias_utilizadas || []),
-        JSON.stringify(actividadData.herramientas_utilizadas || []),
-        actividadData.dificultad_percibida || null,
-        actividadData.satisfaccion_tecnico || null,
-        actividadData.creado_por || null
+        actividadData.observaciones_tecnico || null
       ];
 
-      const [result] = await connection.query(query, values);
+      const result = await connection.query(query, values);
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
       
       await connection.commit();
 
       // Obtener la actividad creada
-      const nuevaActividad = await this.findById(result.insertId);
+      const nuevaActividad = await this.findById(insertId);
       
-      // Auto-actualizar progreso de asignación si es necesario
-      if (actividadData.estado === 'completada') {
-        await this.updateAsignacionProgress(actividadData.asignacion_id);
-      }
-
       return nuevaActividad;
 
     } catch (error) {
@@ -136,17 +103,15 @@ class Actividad {
     const query = `
       SELECT 
         a.*,
-        t.nombre as tecnico_nombre,
-        t.apellidos as tecnico_apellidos,
+        u.nombre as tecnico_nombre,
+        u.apellido as tecnico_apellidos,
         asig.proyecto_nombre,
         asig.cliente_id,
-        c.nombre as cliente_nombre,
-        val.nombre as validador_nombre
+        c.nombre_empresa as cliente_nombre
       FROM vf_actividades a
-      LEFT JOIN vf_tecnicos t ON a.tecnico_id = t.id
+      LEFT JOIN vf_usuarios u ON a.tecnico_id = u.id
       LEFT JOIN vf_asignaciones asig ON a.asignacion_id = asig.id
       LEFT JOIN vf_clientes c ON asig.cliente_id = c.id
-      LEFT JOIN vf_usuarios val ON a.validado_por = val.id
       WHERE a.id = ?
     `;
 
@@ -166,17 +131,15 @@ class Actividad {
     let query = `
       SELECT 
         a.*,
-        t.nombre as tecnico_nombre,
-        t.apellidos as tecnico_apellidos,
+        u.nombre as tecnico_nombre,
+        u.apellido as tecnico_apellidos,
         asig.proyecto_nombre,
         asig.cliente_id,
-        c.nombre as cliente_nombre,
-        val.nombre as validador_nombre
+        c.nombre_empresa as cliente_nombre
       FROM vf_actividades a
-      LEFT JOIN vf_tecnicos t ON a.tecnico_id = t.id
+      LEFT JOIN vf_usuarios u ON a.tecnico_id = u.id
       LEFT JOIN vf_asignaciones asig ON a.asignacion_id = asig.id
       LEFT JOIN vf_clientes c ON asig.cliente_id = c.id
-      LEFT JOIN vf_usuarios val ON a.validado_por = val.id
       WHERE 1=1
     `;
 
@@ -213,28 +176,25 @@ class Actividad {
       valores.push(filtros.tipo_actividad);
     }
 
-    if (filtros.prioridad) {
-      query += ` AND a.prioridad = ?`;
-      valores.push(filtros.prioridad);
-    }
+    // prioridad no existe en la tabla real
 
     if (filtros.fecha_desde) {
-      query += ` AND a.fecha_inicio >= ?`;
+      query += ` AND a.fecha_actividad >= ?`;
       valores.push(filtros.fecha_desde);
     }
 
     if (filtros.fecha_hasta) {
-      query += ` AND a.fecha_inicio <= ?`;
+      query += ` AND a.fecha_actividad <= ?`;
       valores.push(filtros.fecha_hasta);
     }
 
     if (filtros.tiempo_min) {
-      query += ` AND a.tiempo_trabajado_horas >= ?`;
+      query += ` AND a.horas_trabajadas >= ?`;
       valores.push(filtros.tiempo_min);
     }
 
     if (filtros.tiempo_max) {
-      query += ` AND a.tiempo_trabajado_horas <= ?`;
+      query += ` AND a.horas_trabajadas <= ?`;
       valores.push(filtros.tiempo_max);
     }
 
@@ -245,7 +205,7 @@ class Actividad {
     }
 
     if (filtros.con_evidencias) {
-      query += ` AND (JSON_LENGTH(a.archivos_adjuntos) > 0 OR JSON_LENGTH(a.capturas_pantalla) > 0)`;
+      query += ` AND JSON_LENGTH(a.archivos_adjuntos) > 0`;
     }
 
     if (filtros.validado_por) {
@@ -292,11 +252,9 @@ class Actividad {
 
       // Construir query de actualización dinámico
       const camposActualizables = [
-        'titulo', 'descripcion', 'tipo_actividad', 'prioridad',
-        'fecha_inicio', 'fecha_fin', 'tiempo_estimado_horas', 'tiempo_trabajado_horas',
-        'porcentaje_completado', 'hitos_completados', 'archivos_adjuntos',
-        'capturas_pantalla', 'enlaces_externos', 'competencias_utilizadas',
-        'herramientas_utilizadas', 'dificultad_percibida', 'satisfaccion_tecnico'
+        'titulo', 'descripcion', 'fecha_actividad', 'hora_inicio', 'hora_fin',
+        'horas_trabajadas', 'tipo_actividad', 'ubicacion', 'estado',
+        'archivos_adjuntos', 'observaciones_tecnico'
       ];
 
       const updates = [];
@@ -307,10 +265,8 @@ class Actividad {
           updates.push(`${campo} = ?`);
           
           // Serializar JSON si es necesario
-          if (['hitos_completados', 'archivos_adjuntos', 'capturas_pantalla', 'enlaces_externos', 'competencias_utilizadas', 'herramientas_utilizadas'].includes(campo)) {
+          if (campo === 'archivos_adjuntos') {
             valores.push(JSON.stringify(datosActualizacion[campo]));
-          } else if (campo === 'cronometro_activo') {
-            valores.push(datosActualizacion[campo] ? 1 : 0);
           } else {
             valores.push(datosActualizacion[campo]);
           }
@@ -321,7 +277,7 @@ class Actividad {
         throw new Error('No hay campos para actualizar');
       }
 
-      updates.push('actualizado_en = CURRENT_TIMESTAMP');
+      updates.push('fecha_actualizacion = CURRENT_TIMESTAMP');
       valores.push(this.id);
 
       const query = `UPDATE vf_actividades SET ${updates.join(', ')} WHERE id = ?`;
@@ -332,9 +288,12 @@ class Actividad {
       // Actualizar el objeto actual
       Object.assign(this, datosActualizacion);
 
-      // Auto-actualizar progreso de asignación si cambió el estado o porcentaje
-      if (datosActualizacion.estado === 'completada' || datosActualizacion.porcentaje_completado !== undefined) {
-        await this.updateAsignacionProgress(this.asignacion_id);
+      // Marcar fecha de envío si se envía
+      if (datosActualizacion.estado === 'enviada') {
+        await connection.query(
+          'UPDATE vf_actividades SET fecha_envio = CURRENT_TIMESTAMP WHERE id = ?',
+          [this.id]
+        );
       }
 
       return this;
@@ -353,9 +312,6 @@ class Actividad {
   async delete() {
     const query = `DELETE FROM vf_actividades WHERE id = ?`;
     await database.query(query, [this.id]);
-    
-    // Auto-actualizar progreso de asignación
-    await this.updateAsignacionProgress(this.asignacion_id);
     
     return true;
   }
