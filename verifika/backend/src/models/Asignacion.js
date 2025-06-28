@@ -281,8 +281,8 @@ class Asignacion {
       // Paginación
       const limit = Math.min(parseInt(filtros.limit) || 20, 100);
       const offset = Math.max(parseInt(filtros.offset) || 0, 0);
-      query += ' LIMIT ? OFFSET ?';
-      valores.push(parseInt(limit), parseInt(offset));
+      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+      query += ` ${limitClause}`;
 
       const result = await database.query(query, valores);
       const rows = Array.isArray(result) ? result : [result];

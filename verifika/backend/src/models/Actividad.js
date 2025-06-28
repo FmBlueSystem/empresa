@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const database = require('../config/database');
 const mysql = require('mysql2/promise');
 
 class Actividad {
@@ -55,7 +55,7 @@ class Actividad {
    * Crear nueva actividad con validaciones completas
    */
   static async create(actividadData) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -94,7 +94,7 @@ class Actividad {
         actividadData.fecha_fin || null,
         actividadData.tiempo_estimado_horas || null,
         actividadData.tiempo_trabajado_horas || 0,
-        actividadData.cronometro_activo || false,
+        actividadData.cronometro_activo ? 1 : 0,
         actividadData.porcentaje_completado || 0,
         JSON.stringify(actividadData.hitos_completados || []),
         JSON.stringify(actividadData.archivos_adjuntos || []),
@@ -107,7 +107,7 @@ class Actividad {
         actividadData.creado_por || null
       ];
 
-      const [result] = await connection.execute(query, values);
+      const [result] = await connection.query(query, values);
       
       await connection.commit();
 
@@ -150,7 +150,7 @@ class Actividad {
       WHERE a.id = ?
     `;
 
-    const [rows] = await db.execute(query, [id]);
+    const rows = await database.query(query, [id]);
     
     if (rows.length === 0) {
       return null;
@@ -255,7 +255,7 @@ class Actividad {
 
     if (filtros.cronometro_activo !== undefined) {
       query += ` AND a.cronometro_activo = ?`;
-      valores.push(filtros.cronometro_activo);
+      valores.push(filtros.cronometro_activo ? 1 : 0);
     }
 
     // Ordenamiento
@@ -271,16 +271,13 @@ class Actividad {
 
     // Paginación
     if (paginacion.limit) {
-      query += ` LIMIT ?`;
-      valores.push(parseInt(paginacion.limit));
-      
-      if (paginacion.offset) {
-        query += ` OFFSET ?`;
-        valores.push(parseInt(paginacion.offset));
-      }
+      const limit = parseInt(paginacion.limit);
+      const offset = parseInt(paginacion.offset) || 0;
+      const limitClause = `LIMIT ${limit} OFFSET ${offset}`;
+      query += ` ${limitClause}`;
     }
 
-    const [rows] = await db.execute(query, valores);
+    const rows = await database.query(query, valores);
     return rows.map(row => new Actividad(row));
   }
 
@@ -288,7 +285,7 @@ class Actividad {
    * Actualizar actividad
    */
   async update(datosActualizacion) {
-    const connection = await db.getConnection();
+    const connection = await database.getConnection();
     
     try {
       await connection.beginTransaction();
@@ -312,6 +309,8 @@ class Actividad {
           // Serializar JSON si es necesario
           if (['hitos_completados', 'archivos_adjuntos', 'capturas_pantalla', 'enlaces_externos', 'competencias_utilizadas', 'herramientas_utilizadas'].includes(campo)) {
             valores.push(JSON.stringify(datosActualizacion[campo]));
+          } else if (campo === 'cronometro_activo') {
+            valores.push(datosActualizacion[campo] ? 1 : 0);
           } else {
             valores.push(datosActualizacion[campo]);
           }
@@ -326,7 +325,7 @@ class Actividad {
       valores.push(this.id);
 
       const query = `UPDATE vf_actividades SET ${updates.join(', ')} WHERE id = ?`;
-      await connection.execute(query, valores);
+      await connection.query(query, valores);
 
       await connection.commit();
 
@@ -353,7 +352,7 @@ class Actividad {
    */
   async delete() {
     const query = `DELETE FROM vf_actividades WHERE id = ?`;
-    await db.execute(query, [this.id]);
+    await database.query(query, [this.id]);
     
     // Auto-actualizar progreso de asignación
     await this.updateAsignacionProgress(this.asignacion_id);
@@ -741,7 +740,7 @@ class Actividad {
       ${whereClause}
     `;
 
-    const [rows] = await db.execute(query, valores);
+    const rows = await database.query(query, valores);
     return rows[0];
   }
 
@@ -767,7 +766,7 @@ class Actividad {
       GROUP BY a.tecnico_id, t.nombre, t.apellidos
     `;
 
-    const [rows] = await db.execute(query, [tecnicoId, fechaInicio, fechaFin]);
+    const rows = await database.query(query, [tecnicoId, fechaInicio, fechaFin]);
     return rows[0] || null;
   }
 
@@ -787,7 +786,7 @@ class Actividad {
       WHERE id = ? AND estado IN ('activa', 'pausada')
     `;
 
-    const [rows] = await conn.execute(query, [asignacionId]);
+    const rows = await conn.query(query, [asignacionId]);
     
     if (rows.length === 0) {
       throw new Error('La asignación no existe o no está activa');
@@ -807,7 +806,7 @@ class Actividad {
       WHERE id = ? AND tecnico_id = ?
     `;
 
-    const [rows] = await conn.execute(query, [asignacionId, tecnicoId]);
+    const rows = await conn.query(query, [asignacionId, tecnicoId]);
     
     if (rows.length === 0) {
       throw new Error('El técnico no está asignado a este proyecto');
@@ -834,7 +833,7 @@ class Actividad {
       valores.push(excluirActividadId);
     }
 
-    const [rows] = await conn.execute(query, valores);
+    const rows = await conn.query(query, valores);
     
     if (rows.length > 0) {
       throw new Error('El técnico ya tiene un cronómetro activo en otra actividad');
@@ -857,7 +856,7 @@ class Actividad {
       WHERE asignacion_id = ?
     `;
 
-    const [rows] = await db.execute(query, [asignacionId]);
+    const rows = await database.query(query, [asignacionId]);
     const stats = rows[0];
 
     if (stats.total_actividades > 0) {
@@ -875,7 +874,7 @@ class Actividad {
         WHERE id = ?
       `;
 
-      await db.execute(updateQuery, [
+      await database.query(updateQuery, [
         porcentajeCalculado,
         stats.actividades_completadas,
         stats.total_actividades,

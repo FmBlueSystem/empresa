@@ -151,7 +151,26 @@ const tableStatements = [
     INDEX idx_activo (activo)
 )`,
 
-// 8. ASIGNACIONES TÉCNICO-CLIENTE
+// 8. TABLA DE PROYECTOS
+`CREATE TABLE IF NOT EXISTS vf_proyectos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    cliente_id INT NOT NULL,
+    estado ENUM('planificacion', 'activo', 'pausado', 'completado', 'cancelado') DEFAULT 'planificacion',
+    fecha_inicio DATE,
+    fecha_fin_estimada DATE,
+    fecha_fin_real DATE,
+    presupuesto DECIMAL(12,2),
+    moneda VARCHAR(3) DEFAULT 'EUR',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cliente_id) REFERENCES vf_clientes(id),
+    INDEX idx_cliente_id (cliente_id),
+    INDEX idx_estado (estado)
+)`,
+
+// 9. ASIGNACIONES TÉCNICO-CLIENTE
 `CREATE TABLE IF NOT EXISTS vf_asignaciones (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tecnico_id INT NOT NULL,
@@ -453,7 +472,26 @@ CREATE TABLE IF NOT EXISTS vf_clientes_validadores (
     INDEX idx_activo (activo)
 );
 
--- 8. ASIGNACIONES TÉCNICO-CLIENTE
+-- 8. TABLA DE PROYECTOS
+CREATE TABLE IF NOT EXISTS vf_proyectos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    cliente_id INT NOT NULL,
+    estado ENUM('planificacion', 'activo', 'pausado', 'completado', 'cancelado') DEFAULT 'planificacion',
+    fecha_inicio DATE,
+    fecha_fin_estimada DATE,
+    fecha_fin_real DATE,
+    presupuesto DECIMAL(12,2),
+    moneda VARCHAR(3) DEFAULT 'EUR',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cliente_id) REFERENCES vf_clientes(id),
+    INDEX idx_cliente_id (cliente_id),
+    INDEX idx_estado (estado)
+);
+
+-- 9. ASIGNACIONES TÉCNICO-CLIENTE
 CREATE TABLE IF NOT EXISTS vf_asignaciones (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tecnico_id INT NOT NULL,

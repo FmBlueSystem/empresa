@@ -1,5 +1,5 @@
 // Cliente.js - Modelo para gestión de clientes en Verifika
-const db = require('../config/database');
+const database = require('../config/database');
 const logger = require('../config/logger');
 
 class Cliente {
@@ -103,11 +103,12 @@ class Cliente {
         creadoPor
       ];
 
-      const [result] = await db.execute(query, valores);
-      const cliente = await this.findById(result.insertId);
+      const result = await database.query(query, valores);
+      const insertId = Array.isArray(result) ? result[0].insertId : result.insertId;
+      const cliente = await this.findById(insertId);
 
       logger.info('Cliente creado exitosamente', {
-        cliente_id: result.insertId,
+        cliente_id: insertId,
         razon_social: clienteData.razon_social,
         creado_por: creadoPor
       });
@@ -135,7 +136,7 @@ class Cliente {
         GROUP BY c.id
       `;
 
-      const [rows] = await db.execute(query, [id]);
+      const rows = await database.query(query, [id]);
       
       if (rows.length === 0) {
         return null;
@@ -161,7 +162,7 @@ class Cliente {
   static async findByIdentificacion(identificacion) {
     try {
       const query = 'SELECT * FROM vf_clientes WHERE identificacion = ? LIMIT 1';
-      const [rows] = await db.execute(query, [identificacion]);
+      const rows = await database.query(query, [identificacion]);
       
       if (rows.length === 0) {
         return null;
@@ -178,7 +179,7 @@ class Cliente {
   static async findByEmail(email) {
     try {
       const query = 'SELECT * FROM vf_clientes WHERE email = ? OR email_contacto = ? LIMIT 1';
-      const [rows] = await db.execute(query, [email, email]);
+      const rows = await database.query(query, [email, email]);
       
       if (rows.length === 0) {
         return null;
@@ -267,10 +268,10 @@ class Cliente {
       // Paginación
       const limit = Math.min(parseInt(filtros.limit) || 20, 100);
       const offset = Math.max(parseInt(filtros.offset) || 0, 0);
-      query += ' LIMIT ? OFFSET ?';
-      valores.push(limit, offset);
+      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+      query += ` ${limitClause}`;
 
-      const [rows] = await db.execute(query, valores);
+      const rows = await database.query(query, valores);
 
       return rows.map(row => {
         if (row.metadatos) {
@@ -301,7 +302,7 @@ class Cliente {
         ORDER BY c.razon_social ASC
       `;
 
-      const [rows] = await db.execute(query);
+      const rows = await database.query(query);
       return rows.map(row => new Cliente(row));
     } catch (error) {
       logger.error('Error al obtener clientes activos:', error);
@@ -345,7 +346,7 @@ class Cliente {
       valores.push(this.id);
 
       const query = `UPDATE vf_clientes SET ${actualizaciones.join(', ')} WHERE id = ?`;
-      await db.execute(query, valores);
+      await database.query(query, valores);
 
       // Actualizar propiedades del objeto
       Object.assign(this, datosActualizacion);
@@ -374,7 +375,7 @@ class Cliente {
       });
 
       const query = 'UPDATE vf_clientes SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?';
-      await db.execute(query, [nuevoEstado, this.id]);
+      await database.query(query, [nuevoEstado, this.id]);
 
       this.estado = nuevoEstado;
 
@@ -414,11 +415,11 @@ class Cliente {
       if (filtros.limit) {
         const limit = Math.min(parseInt(filtros.limit), 50);
         const offset = Math.max(parseInt(filtros.offset) || 0, 0);
-        query += ' LIMIT ? OFFSET ?';
-        valores.push(limit, offset);
+        const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+        query += ` ${limitClause}`;
       }
 
-      const [rows] = await db.execute(query, valores);
+      const rows = await database.query(query, valores);
       return rows;
     } catch (error) {
       logger.error('Error al obtener proyectos del cliente:', error);
@@ -437,7 +438,7 @@ class Cliente {
         ORDER BY cv.fecha_asignacion DESC
       `;
 
-      const [rows] = await db.execute(query, [this.id]);
+      const rows = await database.query(query, [this.id]);
       return rows;
     } catch (error) {
       logger.error('Error al obtener validadores del cliente:', error);
@@ -450,7 +451,7 @@ class Cliente {
     try {
       // Verificar si ya existe la asignación
       const existeQuery = 'SELECT id FROM vf_cliente_validadores WHERE cliente_id = ? AND usuario_id = ? AND activo = 1';
-      const [existe] = await db.execute(existeQuery, [this.id, usuarioId]);
+      const existe = await database.query(existeQuery, [this.id, usuarioId]);
 
       if (existe.length > 0) {
         throw new Error('El usuario ya está asignado como validador de este cliente');
@@ -461,7 +462,7 @@ class Cliente {
         VALUES (?, ?, ?, NOW())
       `;
 
-      await db.execute(query, [this.id, usuarioId, asignadoPor]);
+      await database.query(query, [this.id, usuarioId, asignadoPor]);
 
       logger.info('Validador asignado al cliente', {
         cliente_id: this.id,
@@ -498,7 +499,7 @@ class Cliente {
         GROUP BY c.id
       `;
 
-      const [rows] = await db.execute(query, [this.id]);
+      const rows = await database.query(query, [this.id]);
       return rows[0] || {};
     } catch (error) {
       logger.error('Error al obtener estadísticas del cliente:', error);
@@ -523,7 +524,7 @@ class Cliente {
         FROM vf_clientes
       `;
 
-      const [rows] = await db.execute(query);
+      const rows = await database.query(query);
       return rows[0];
     } catch (error) {
       logger.error('Error al obtener estadísticas de clientes:', error);
