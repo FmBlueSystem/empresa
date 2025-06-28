@@ -122,15 +122,14 @@ class Competencia {
       }
 
       // Query principal (construir LIMIT dinámicamente para evitar problemas)
-      const limitClause = `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
       const query = `
         SELECT *
         FROM vf_competencias_catalogo
         ${whereClause}
         ORDER BY categoria, nombre
-        ${limitClause}
+        LIMIT ? OFFSET ?
       `;
-
+      
       // Query para contar total
       const countQuery = `
         SELECT COUNT(*) as total_count
@@ -138,8 +137,8 @@ class Competencia {
         ${whereClause}
       `;
 
-      // Ejecutar ambas queries (sin LIMIT/OFFSET parameters)
-      const rows = await database.query(query, params);
+      // Ejecutar ambas queries con paginación
+      const rows = await database.query(query, [...params, parseInt(limit), parseInt(offset)]);
       const countResult = await database.query(countQuery, params);
 
       const competencias = rows.map(row => new Competencia(row));

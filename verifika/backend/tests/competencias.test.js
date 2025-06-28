@@ -1,4 +1,7 @@
 // competencias.test.js - Tests para el módulo de competencias
+jest.mock('../src/config/database');
+jest.mock('../src/config/redis');
+
 const request = require('supertest');
 const app = require('../server');
 const database = require('../src/config/database');

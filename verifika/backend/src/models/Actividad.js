@@ -233,8 +233,8 @@ class Actividad {
     if (paginacion.limit) {
       const limit = parseInt(paginacion.limit);
       const offset = parseInt(paginacion.offset) || 0;
-      const limitClause = `LIMIT ${limit} OFFSET ${offset}`;
-      query += ` ${limitClause}`;
+      query += ' LIMIT ? OFFSET ?';
+      valores.push(limit, offset);
     }
 
     const rows = await database.query(query, valores);

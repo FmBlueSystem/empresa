@@ -1,4 +1,6 @@
 // clientes.unit.test.js - Tests unitarios para el modelo Cliente
+jest.mock('../src/config/database');
+
 const Cliente = require('../src/models/Cliente');
 const database = require('../src/config/database');
 const bcrypt = require('bcryptjs');
