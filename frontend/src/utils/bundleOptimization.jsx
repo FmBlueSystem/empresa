@@ -106,10 +106,10 @@ class ErrorBoundary extends React.Component {
  */
 export const preloadCriticalComponents = () => {
   const criticalImports = [
-    () => import('../components/Hero'),
-    () => import('../components/ServicesSection'),
-    () => import('../components/Navbar'),
-    () => import('../components/Footer')
+    () => import('../components/Hero.jsx'),
+    () => import('../components/ServicesSection.jsx'),
+    () => import('../components/Navbar.jsx'),
+    () => import('../components/Footer.jsx')
   ];
 
   // Preload en idle time
